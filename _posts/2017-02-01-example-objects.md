@@ -20,6 +20,11 @@ static void asyncEnabled(Dict* args, void* vAdmin, String* txid, struct Allocato
 
 {% endhighlight %}
 
+### Second attempt at code
+~~~python
+for i in list:
+	print "do something"
+~~~
 
 ### Quote
 
