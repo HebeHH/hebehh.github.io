@@ -23,7 +23,7 @@ static void asyncEnabled(Dict* args, void* vAdmin, String* txid, struct Allocato
 
 ### Quote
 
-> They who can give up essential liberty to obtain a little temporary safety, deserve neither liberty nor safety.
+> Much test okay They who can give up essential liberty to obtain a little temporary safety, deserve neither liberty nor safety.
 > 
 > _Benjamin Franklin_
 
