@@ -1,10 +1,15 @@
 ---
-title:  "Simpler Topic Modelling with Reddit News"
-date:   2018-08-07 23:37:00
-categories: python, NLP, topic modelling, reddit, news
+title: "Simpler Topic Modelling with Reddit News"
+date: 2018-08-07 01:14:07
+image: '/assets/'
+description:
+tags: python, NLP, topic modelling, reddit, news
+categories:
+twitter_text:
 ---
-
 During my last bout with insomnia I decided I wanted to get a bit more familiar with python's [regex](https://developers.google.com/edu/python/regular-expressions), [pandas](https://pandas.pydata.org/) and [PRAW Reddit API](https://praw.readthedocs.io/en/latest/) all at the same time. This turned into an exploratory saga into [topic modelling](https://www.kdnuggets.com/2016/07/text-mining-101-topic-modeling.html), a fascinating subset of natural language processing that uncovers common topics within text data. As a random mini-task, I'd decided to try mining new r/news posts to find current popular topics, then return matching articles. 
+
+
 
 Typically, it's as complicated as it is useful. Categorizing organic text requires contextual pattern recognition that's easy for humans, but not rule-based enough to easily program. It's most successfully done through unsupervised machine learning, generally going something like this:
 
@@ -216,7 +221,7 @@ for submission in reddit.subreddit("worldnews").hot(limit = None):
 
 Now this? This is getting somewhere.
 
-![image-20180806164725064](/var/folders/s_/snm6nnrs2bs3jv5s2qtc8y580000gn/T/abnerworks.Typora/image-20180806164725064.png)
+![image-20180806164725064]({{github.hebehh.io}}/assets/image-20180806164725064.png)
 
 All of these groups feature (mostly) different articles about the same event. There's still some groups that refer to the same topic - three groups refer to N. Korean missile tests - but that's gotten better. I'm expecting them to disappear once I sort out the less popular ones. Of course, with my luck, it's more likely that we'll end up with only duplicates in the most popular ones.
 
@@ -234,7 +239,7 @@ Suck backtrack, much wow.
 
 Anyway, on to finding the popular events. Equating this to commonly posted about didn't work out previously. I checked it out anyway, and unsurprisingly found that it was mostly events with duplicate or near-duplicate articles. Ah well.
 
-![image-20180806171635875](/var/folders/s_/snm6nnrs2bs3jv5s2qtc8y580000gn/T/abnerworks.Typora/image-20180806171635875.png)
+![image-20180806171635875]({{github.hebehh.io}}/assets/image-20180806171635875.png)
 
 Sorting by scores it is. At this point, I realized I'd stopped fetching the scores from reddit at some point. Whoops. Ah well, easy enough fix.
 
@@ -301,7 +306,7 @@ This finally delivered my dream; it compressed 23 topics down into 7 sensible gr
 
 With my topic grouping and >500 bound for the combined score, I ended up with 16 summary articles. All were independent, and decently important. They covered events from Tel Aviv to Bangladesh, including the classical White House scandals and technology updates as well as feel-good whale stories.
 
-![image-20180807021907749](/var/folders/s_/snm6nnrs2bs3jv5s2qtc8y580000gn/T/abnerworks.Typora/image-20180807022120917.png)
+![image-20180807021907749]({{github.hebehh.io}}/assets/image-20180807022120917.png)
 
 This is kinda awesome - it took a bunch of pivoting and head-scratching, but I've finally accomplished my goal! The top stories of the day, each covered by unique articles in a quick and accessible summary of relevant news. Can I confirm that these adequately represent the top of the news cycle? 
 
