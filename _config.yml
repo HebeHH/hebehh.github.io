@@ -19,7 +19,7 @@ navigation:
 
 comments:
   disqus: "disqus-contrast"
-#  isso: "comments.mysite.org"
+  # isso: "comments.mysite.org"
 
 links: # see http://fontawesome.io/icons/#brand for all possible icons
   - github: "https://github.com/HebeHH"
