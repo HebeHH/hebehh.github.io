@@ -40,7 +40,7 @@ article, body > footer
 @import anchor
 
 html
-  background-color: #721a45
+  background-color: #721a45 
 
 article
   border-top: 1px solid rgba(148, 148, 148, .08)
@@ -48,12 +48,17 @@ article
 article:first-of-type
   border-top: none
 
-article, body > header, body > footer
+article, body > footer
   padding: 1em calc(22% - 4em)
 
 body > header
-  background-color: #721a45
-  color: white
+  background-image: url('assets/scenic1.jpg')
+  background-position: center
+  background-size: 100% auto
+  color: grey
+  padding: 4.5em calc(22% - 4em)
+  text-align: right
+
 
 {% if site.style.dark %}
 
@@ -92,12 +97,14 @@ nav
 nav a
   display: inline-block
   margin: 0 .8em
+  font-weight: 600
 
 nav, body > footer
   display: flex
   flex-wrap: wrap
-  justify-content: space-between
-  align-items: center
+  justify-content: flex-end
+  align-items: right
+  text-align: right
 
 .archive
   h3
