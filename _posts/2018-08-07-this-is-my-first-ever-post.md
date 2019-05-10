@@ -17,8 +17,6 @@ Typically, it's as complicated as it is useful. Categorizing organic text requir
 - Find topics: Group together words that often show up in the same documents. Produce Word x Topic matrix.
 - Analyze documents: Evaluate how much each document belongs to each topic. Produce Topic x Document matrix.
 
-https://upload.wikimedia.org/wikipedia/commons/7/70/Topic_model_scheme.webm 
-
 Notably, the 'topics' of topic modelling are not descriptors as you and I would expect (eg: war) but instead represented by groupings of words commonly used together (eg: guns, soldiers, MIA, General).
 
 The most popular method is [Latent Dirichlet allocation](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation), a generative probabilistic extension of pLSA.  [Python: Real-World Data Science](https://books.google.com.sg/books/about/Python_Real_World_Data_Science.html?id=skvZDQAAQBAJ&redir_esc=y) has a full chapter on a very similar project using a k-means clustering algorithm.  There's of course out-of-the-box libraries like [nltk](https://www.nltk.org/), but I didn't want to use it without properly understanding it. 
