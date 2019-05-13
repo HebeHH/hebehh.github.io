@@ -1,7 +1,8 @@
 ---
-title: "Javascript Games"
+title: "Ping"
 date: 2018-08-07 01:14:07
 image: '/assets/'
+excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HTML, CSS and JavaScript."
 ---
 <!DOCTYPE html>
 
@@ -37,6 +38,7 @@ image: '/assets/'
         background-color: purple;
         position: absolute;
         height: 8px;
+        border-radius: 25%;
     }
 
     button {
@@ -49,6 +51,7 @@ image: '/assets/'
         border-color: purple;
     }
     </style>
+
     <script type="text/javascript">
     var catcher_x = 0;
     var score = 0;
@@ -123,11 +126,10 @@ image: '/assets/'
 
     // move catcher
     document.addEventListener('keydown', function(event) {
-        w = document.getElementById("game").clientWidth;
-        if (event.keyCode == 37 & catcher_x >= 0) {
-            catcher_x = catcher_x - w * 0.02;
-        } else if (event.keyCode == 39 & catcher_x < w * 0.9) {
-            catcher_x = catcher_x + w * 0.02;
+        if (event.keyCode == 37 & catcher_x - game_width * 0.02 >= 0) {
+            catcher_x = catcher_x - game_width * 0.02;
+        } else if (event.keyCode == 39 & catcher_x < game_width * 0.9) {
+            catcher_x = catcher_x + game_width * 0.02;
         }
         catcher.style.left = catcher_x + "px"
     })
@@ -141,13 +143,7 @@ image: '/assets/'
     function die() {
         dots = Array.from(document.getElementsByClassName("dot"), d => setDir(d));
         clearInterval(id);
-        g = game.innerHTML;
-        game.style.backgroundColor = 'purple';
-        game.innerHTML = "<div style='font-size:50px;position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight:bold; color:gold'>"+score+ " POINTS!!! </div>";
-        setTimeout(()=> {
-        	game.innerHTML = g; 
-        	game.style.backgroundColor = '#BCD8C1';
-        	clearInterval(id)}, 1500);
+        alert("YOU SCORED " + score + " POINTS!")
         score = 0;
         document.getElementById("play").innerText = "Play";
     }
@@ -168,6 +164,9 @@ image: '/assets/'
 </head>
 
 <body>
+    <p>
+        Bounce the balls! Move with the L/R arrow keys, and adjust the difficulty by either changing the speed or adding more balls.
+    </p>
     <div id="game">
         <span id="score"> Score: 0 </span>
         <div class="row">
@@ -190,6 +189,7 @@ image: '/assets/'
 
     catcher = document.getElementById("catcher");
     catcher.style.top = game_width * ratio - 14 + "px";
+    catcher.style.left = "0px";
     catcher.style.width = game_width * 0.1 + "px";
 
     addDot();
@@ -198,7 +198,7 @@ image: '/assets/'
         speed = this.value / 2;
         if (document.getElementById("play").innerText == "Stop") {
             clearInterval(id);
-            document.getElementById("play").innerText == "Play"
+            document.getElementById("play").innerText = "Play"
         }
     }
     </script>
