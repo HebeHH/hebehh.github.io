@@ -159,6 +159,7 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
         dots = Array.from(document.getElementsByClassName("dot"), (d) => setDir(d));
         alert("YOU SCORED " + score + " POINTS!")
         score = 0;
+        document.getElementById("score").innerText = "Score: " + score;
         document.getElementById("play").innerText = "Play";
     }
 
