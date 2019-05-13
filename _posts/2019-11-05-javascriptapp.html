@@ -1,6 +1,6 @@
 ---
-title: "Ping"
-date: 2018-08-07 01:14:07
+title: "Ping."
+date: 2019-04-02 01:14:07
 image: '/assets/'
 excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HTML, CSS and JavaScript."
 ---
@@ -13,7 +13,10 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
         background-color: #BCD8C1;
         position: relative;
         border-color: purple;
+        border-width: 2px;
+        border-style: solid;
     }
+
     .dot {
         height: 15px;
         width: 15px;
@@ -22,18 +25,22 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
         display: inline-block;
         position: absolute;
     }
+
     #score {
         display: inline-block;
         position: absolute;
         color: #222E50;
     }
+
     .row {
         width: 100%;
         text-align: center;
     }
+
     .pm {
-    	width: 30px;
+        width: 30px;
     }
+
     #catcher {
         background-color: purple;
         position: absolute;
@@ -51,7 +58,6 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
         border-color: purple;
     }
     </style>
-
     <script type="text/javascript">
     var catcher_x = 1;
     var score = 0;
@@ -60,22 +66,22 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
     var dots = [];
     var ratio = 0.65;
 
+    // setup dot with position and movement
     function setDir(el) {
-        let x_val = Math.random() * 5 - 1;
+        let x_val = Math.random() *2 - 1;
         let dot = {
             elem: el,
             x: Math.random() * (game_width - 50) + 25,
             y: Math.random() * game_width * 0.1,
-            vx: x_val * 1.1,
-            vy: (2 - x_val ** 2) ** 0.5
+            vx: x_val*1.5,
+            vy: 1.5*(2 - x_val ** 2) ** 0.5
         }
         el.style.top = dot.y + "px";
         el.style.left = dot.x + "px";
         return dot;
-
     }
 
-    // check stop or start
+    // check whether to stop or start
     function play() {
         var b = document.getElementById("play");
         switch (b.innerText) {
@@ -95,14 +101,15 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
             left: 0,
             right: game_width - 15,
             top: 0,
-            bottom: game_width * ratio - 28
+            bottom: game_width * ratio - 25
         };
 
         id = setInterval(frame, speed);
 
         // move and bounce dots
         function frame() {
-            dots.map(dot => {
+            for (var i = dots.length - 1; i >= 0; i--) {
+                dot = dots[i];
                 if (dot.y >= boundaries.bottom) {
                     if (catcher_x - 10 < dot.x &
                         dot.x < catcher_x + game_width * 0.1 - 10) {
@@ -110,6 +117,7 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
                         updateScore();
                     } else {
                         die();
+                        break;
                     }
                 } else if (dot.y < boundaries.top) {
                     dot.vy = -dot.vy;
@@ -122,21 +130,21 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
                 dot.y = dot.y + dot.vy;
                 dot.elem.style.top = dot.y + "px";
                 dot.elem.style.left = dot.x + "px";
-            })
+            }
         }
     }
 
     // move catcher
     document.addEventListener('keydown', function(event) {
-        console.log(catcher_x)
         if (event.keyCode == 37 & catcher_x > 0 + game_width * 0.03) {
-            console.log("move left")
             catcher_x = catcher_x - game_width * 0.03;
         } else if (event.keyCode == 39 & catcher_x < game_width * 0.9) {
-            console.log("move right")
             catcher_x = catcher_x + game_width * 0.03;
         }
         catcher.style.left = catcher_x + "px";
+        if (event.keyCode == '32') {
+            play();
+        }
     })
 
     // update score
@@ -146,8 +154,9 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
     }
     // die
     function die() {
-        dots = Array.from(document.getElementsByClassName("dot"), d => setDir(d));
+        dots = Array.from(document.getElementsByClassName("dot"), (d) => setDir(d));
         clearInterval(id);
+        dots = Array.from(document.getElementsByClassName("dot"), (d) => setDir(d));
         alert("YOU SCORED " + score + " POINTS!")
         score = 0;
         document.getElementById("play").innerText = "Play";
@@ -170,7 +179,7 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
 
 <body>
     <p>
-        Bounce the balls! Move with the L/R arrow keys, and adjust the difficulty by either changing the speed or adding more balls.
+        Bounce the balls! </br> Move with the L/R arrow keys, and adjust the difficulty by changing the speed or adding more balls.
     </p>
     <div id="game">
         <span id="score"> Score: 0 </span>
@@ -186,6 +195,59 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
             <button class="pm" onclick="remDot()">-</button>
         </div>
     </div>
+    <p>
+        This game is one of my first javascript projects, specifically intended to familiarize myself with working with the DOM and updating the HTML and CSS on the fly. It was coded pretty much from scratch, with around 160 lines of JS, 50 of CSS, and barely 10 lines of HTML (not counting this writeup, of course).
+    </p>
+    <h3>Making the box:</h3>
+    <p> 
+        It's surprisingly tricky to make div height a function of width in plain CSS. I didn't want to code absolute size, which meant using % width of the surrounding container. Unfortunately getting a % of height is harder since, well, scrolling - so I decided to have height proportional to width. Unfortunately, the CSS height attribute can't natively access the container width. For some reason, padding-top can. Don't ask me why it can when height can't, but it gives one way to solve the problem:<br>
+        <code>
+            div {<br> &emsp; width = 100%; <br> &emsp; padding-top = 100% <br>}
+        </code><br>
+        This seems to be the typical way to solve the problem, but it means that you need to use absolute positioning for all the child elements - unless you want them all pressed down to the bottom. I didn't want to commit to that, so I ended up hijaking the height with javascript. Funnily enough, javascript also didn't have easy access to the div weight, since I didn't set it inline. Luckily, it does provide a workaround:<br>
+        <code>
+            game = document.getElementById("game");<br>
+            game_width = game.clientWidth;<br>
+            game.style.height = game_width * ratio + "px";<br>
+        </code><br>
+        Voila! Box. The extra effort was slightly diminished given that I subsequently used only absolute positioning. But hey - at least I have the width and height as javascript variables now!
+    </p>
+    <h3>A movable disk:</h3>
+    <p>
+        Moving the disk on keyboard input is super straightforward with a <code>keydown</code> event listener updating the positional information. A bigger challenge was working out the boundaries. Since the disk has width itself, I slimmed the bounds to make sure it doesn't leave the box. I got super confused for a bit since my last graphics code was written in R, where position refers to the center of an element. In CSS, it's the upper left corner. That baffled me for way too long. 
+        <code><br>
+            document.addEventListener('keydown', function(event) {<br>
+        &emsp;if (event.keyCode == 37 & catcher_x > 0 + game_width * 0.03) {<br>
+            &emsp;&emsp;catcher_x = catcher_x - game_width * 0.03;<br>
+        &emsp;} else if (event.keyCode == 39 & catcher_x < game_width * 0.9) {<br>
+           &emsp;&emsp; catcher_x = catcher_x + game_width * 0.03;<br>
+        &emsp;}<br>
+    })<br>
+        </code>
+    </p>
+    <h3>Bouncing balls:</h3>
+    <p>
+        These were by far the most complicated, with several pieces coming together to make them work. They needed to move, preferably in different directions. They should also bounce at the walls - unless you miss and they hit the ground.
+        <br>
+        Basic animation is straightforward with <code>setInterval()</code> wrapping an incremental change in position. Absolute positioning was very useful here. But predictable bounces aren't that fun, so I wanted to endow each ball with random directional velocity - vx and vy values to increment by. I used <code>Math.random()</code> for vx, then trigonometry for vy, meaning that the distance per move will be the same for each dot. Associating these values with balls was my first proper brush with the stringiness of javascript. I'd planned to store them as attributes with the span, but they somehow magically turned into string each time I tried to get them back. Everything turned into strings. Width and height and position all turned into strings, often with a random 'px' appended. Type conversion and regex, sure, but argh such overhead. I ended up just keeping track of everything in the script as well, bundling a dot into an object together with its position and direction.
+        <br>
+        That made bouncing simpler. Hit a wall, flip the sign on vx. Hit the ceiling or disk, flip the sign on vy. Perambulate as normal. Boundary-detection had the same issue as with the disk, and it took several tries until I was touching the walls without ghousting through them. Disk-detection was also thrown by my misunderstanding of position = center, and for awhile the disk's shadow was more effective than the disk itself. Sigh.
+    </p>
+    <h3>Turning up the heat:</h3>
+    <p>
+        In retrospect, the extra balls may be a touch too far. I've yet to get past two hits with more than one ball in the air. Mostly, it's fun to initialize a bunch and let them fall. Still, a fun addition that required a bit of a coding overhaul. 
+        <br>
+        Plonking an extra circle on the page was surprisingly easy, with the <code>createElement()</code> and <code>addChild()</code> functions. This wouldn't be so streamlined, except all my styling was done direct to the <code>span</code> tag so I didn't need to tediously add extra attributes, children and styling. To be part of the game, that circle was wrapped together with movement info and stashed in an array. Each loop, <code>setInterval()</code> pulls the ball array new, so new balls appear in the game immediately.
+        <br>
+        Looping through the array with <code>forEach()</code> caused a new issue. With all balls in the air, it ran fine. With a ball on the ground, it also ran fine. Unfortunately, it comes without <code>break</code> capability. God knows why, but it meant the fallen ball stayed on the ground post-death instead of resetting with the others. It was a simple conversion to a for loop, but I remain disappointed.
+        <br>
+        On the other hand, since the balls only reset when the death function is called, you can add new ones and adjust the speed on the go. Adjusting the speed does pause the game, since I controlled the speed through the millisecond wait in <code>setInterval()</code>. In retrospect, this was stupid and I should just add a multiplier to the vx and vy increments. Whoops.
+    </p>
+    <h3>Overall</h3>
+    <p>
+        Fun to code and fun to play. It looks surprisingly decent - perks of minimalism! Javascript is rather finicky. I definitely don't appreciate how everything turns into a string as soon as it touches the DOM, or the existence of loops that just won't break. On the other hand, the ease of web programming is rather wondrous - especially given this is a static website. Client side scripting for the win!
+    </p>
+
     <script type="text/javascript">
     game = document.getElementById("game");
     game_width = game.clientWidth;
