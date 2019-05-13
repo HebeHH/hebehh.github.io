@@ -1,0 +1,205 @@
+---
+title: "Javascript Games"
+date: 2018-08-07 01:14:07
+image: '/assets/'
+---
+<!DOCTYPE html>
+
+<head>
+    <style type="text/css">
+    #game {
+        width: 100%;
+        background-color: #BCD8C1;
+        position: relative;
+        border-color: purple;
+    }
+    .dot {
+        height: 15px;
+        width: 15px;
+        background-color: #439A86;
+        border-radius: 50%;
+        display: inline-block;
+        position: absolute;
+    }
+    #score {
+        display: inline-block;
+        position: absolute;
+        color: #222E50;
+    }
+    .row {
+        width: 100%;
+        text-align: center;
+    }
+    .pm {
+    	width: 30px;
+    }
+    #catcher {
+        background-color: purple;
+        position: absolute;
+        height: 8px;
+    }
+
+    button {
+        background-color: #439A86;
+        color: #BCD8C1;
+        font-weight: bold;
+        font-size: 20px;
+        height: 30px;
+        margin: 4px;
+        border-color: purple;
+    }
+    </style>
+    <script type="text/javascript">
+    var catcher_x = 0;
+    var score = 0;
+    var id;
+    var speed = 5;
+    var dots = [];
+    var ratio = 0.65;
+
+    function setDir(el) {
+        let x_val = Math.random() * 2 - 1;
+        let dot = {
+            elem: el,
+            x: Math.random() * (game_width - 50) + 25,
+            y: Math.random() * game_width * 0.1,
+            vx: x_val * 1.1,
+            vy: (2 - x_val ** 2) ** 0.5
+        }
+        el.style.top = dot.y + "px";
+        el.style.left = dot.x + "px";
+        return dot;
+
+    }
+
+    function play() {
+        var b = document.getElementById("play");
+        switch (b.innerText) {
+            case "Play":
+                b.innerText = "Stop";
+                run();
+                break;
+            case "Stop":
+                b.innerText = "Play";
+                clearInterval(id);
+        }
+    }
+
+    function run() {
+        var boundaries = {
+            left: 0,
+            right: game_width - 15,
+            top: 0,
+            bottom: game_width * ratio - 28
+        };
+
+        id = setInterval(frame, speed);
+
+        // move and bounce dots
+        function frame() {
+            dots.map(dot => {
+                if (dot.y >= boundaries.bottom) {
+                    if (catcher_x - 10 < dot.x &
+                        dot.x < catcher_x + game_width * 0.1 - 10) {
+                        dot.vy = -dot.vy;
+                        updateScore();
+                    } else {
+                        die();
+                    }
+                } else if (dot.y < boundaries.top) {
+                    dot.vy = -dot.vy;
+                }
+                if (dot.x >= boundaries.right | dot.x <= boundaries.left) {
+                    dot.vx = -dot.vx;
+                }
+
+                dot.x = dot.x + dot.vx;
+                dot.y = dot.y + dot.vy;
+                dot.elem.style.top = dot.y + "px";
+                dot.elem.style.left = dot.x + "px";
+            })
+        }
+    }
+
+    // move catcher
+    document.addEventListener('keydown', function(event) {
+        w = document.getElementById("game").clientWidth;
+        if (event.keyCode == 37 & catcher_x >= 0) {
+            catcher_x = catcher_x - w * 0.02;
+        } else if (event.keyCode == 39 & catcher_x < w * 0.9) {
+            catcher_x = catcher_x + w * 0.02;
+        }
+        catcher.style.left = catcher_x + "px"
+    })
+
+    // update score
+    function updateScore() {
+        score++;
+        document.getElementById("score").innerText = "Score: " + score;
+    }
+    // die
+    function die() {
+        dots = Array.from(document.getElementsByClassName("dot"), d => setDir(d));
+        clearInterval(id);
+        g = game.innerHTML;
+        game.style.backgroundColor = 'purple';
+        game.innerHTML = "<div style='font-size:50px;position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight:bold; color:gold'>"+score+ " POINTS!!! </div>";
+        setTimeout(()=> {
+        	game.innerHTML = g; 
+        	game.style.backgroundColor = '#BCD8C1';
+        	clearInterval(id)}, 1500);
+        score = 0;
+        document.getElementById("play").innerText = "Play";
+    }
+
+    // add new dot to html and game data
+    function addDot() {
+        let d = document.createElement("span");
+        d.setAttribute("class", "dot");
+        game.appendChild(d);
+        dots.push(setDir(d));
+    }
+    // remove dot
+    function remDot() {
+        let d = dots.pop();
+        game.removeChild(d.elem);
+    }
+    </script>
+</head>
+
+<body>
+    <div id="game">
+        <span id="score"> Score: 0 </span>
+        <div class="row">
+            <span id="catcher"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="controls">
+            <button id="play" onclick="play()">Play</button>
+            <input type="range" min="1" max="30" value="15" id="speed">
+            <button class="pm" onclick="remDot()">-</button>
+            <button class="pm" onclick="addDot()">+</button>
+        </div>
+    </div>
+    <script type="text/javascript">
+    game = document.getElementById("game");
+    game_width = game.clientWidth;
+    game.style.height = game_width * ratio + "px";
+    document.getElementById("score").style.left = game_width * 0.9 + "px";
+
+    catcher = document.getElementById("catcher");
+    catcher.style.top = game_width * ratio - 14 + "px";
+    catcher.style.width = game_width * 0.1 + "px";
+
+    addDot();
+
+    document.getElementById("speed").oninput = function() {
+        speed = this.value / 2;
+        if (document.getElementById("play").innerText == "Stop") {
+            clearInterval(id);
+            document.getElementById("play").innerText == "Play"
+        }
+    }
+    </script>
+</body>
