@@ -53,7 +53,7 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
     </style>
 
     <script type="text/javascript">
-    var catcher_x = 0;
+    var catcher_x = 1;
     var score = 0;
     var id;
     var speed = 5;
@@ -61,7 +61,7 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
     var ratio = 0.65;
 
     function setDir(el) {
-        let x_val = Math.random() * 2 - 1;
+        let x_val = Math.random() * 5 - 1;
         let dot = {
             elem: el,
             x: Math.random() * (game_width - 50) + 25,
@@ -75,6 +75,7 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
 
     }
 
+    // check stop or start
     function play() {
         var b = document.getElementById("play");
         switch (b.innerText) {
@@ -88,6 +89,7 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
         }
     }
 
+    // setup and play
     function run() {
         var boundaries = {
             left: 0,
@@ -126,12 +128,15 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
 
     // move catcher
     document.addEventListener('keydown', function(event) {
-        if (event.keyCode == 37 & catcher_x - game_width * 0.02 >= 0) {
-            catcher_x = catcher_x - game_width * 0.02;
+        console.log(catcher_x)
+        if (event.keyCode == 37 & catcher_x > 0 + game_width * 0.03) {
+            console.log("move left")
+            catcher_x = catcher_x - game_width * 0.03;
         } else if (event.keyCode == 39 & catcher_x < game_width * 0.9) {
-            catcher_x = catcher_x + game_width * 0.02;
+            console.log("move right")
+            catcher_x = catcher_x + game_width * 0.03;
         }
-        catcher.style.left = catcher_x + "px"
+        catcher.style.left = catcher_x + "px";
     })
 
     // update score
@@ -177,8 +182,8 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
         <div class="controls">
             <button id="play" onclick="play()">Play</button>
             <input type="range" min="1" max="30" value="15" id="speed">
-            <button class="pm" onclick="remDot()">-</button>
             <button class="pm" onclick="addDot()">+</button>
+            <button class="pm" onclick="remDot()">-</button>
         </div>
     </div>
     <script type="text/javascript">
@@ -189,7 +194,7 @@ excerpt: "A basic version of the famous Atari pong, in less than 200 lines of HT
 
     catcher = document.getElementById("catcher");
     catcher.style.top = game_width * ratio - 14 + "px";
-    catcher.style.left = "0px";
+    catcher.style.left = "1px";
     catcher.style.width = game_width * 0.1 + "px";
 
     addDot();
