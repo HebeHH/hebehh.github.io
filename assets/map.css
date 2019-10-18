@@ -1,0 +1,69 @@
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 2px;
+    font: 12px sans-serif;
+    text-decoration: bold;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+div.clicktip {
+    position: absolute;
+    text-align: center;
+    background-color: moccasin;
+    padding: 4px;
+    font: 12px sans-serif;
+    text-decoration: bold;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+    color: black;
+}
+
+#disasters {
+    display: none;
+}
+
+#conflicts {
+    display: none;
+}
+/*.map {
+    padding-top: 10%;
+}*/
+
+
+.selectables_div {
+    padding-left: 2%;
+    padding-right: 2%;
+    /*column-width: 150px;*/
+    width: 45%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.selectables {
+    column-count: 3;
+    vertical-align: top;
+}
+
+div.details {
+    padding-left: 10%;
+    padding-right: 10%;
+    padding-bottom: 4%;
+    font-family: 'Muli', sans-serif;
+}
+
+div.item {
+    padding-top: 10%
+}
+
+h3, h4 {
+    margin-bottom: 0px;
+    margin-block-end: 0.2em;
+}
+
+
+
+

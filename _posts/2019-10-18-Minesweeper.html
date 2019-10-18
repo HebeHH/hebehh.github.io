@@ -1,0 +1,265 @@
+---
+title: "Minesweeper"
+date: 2019-10-18 01:14:07
+excerpt: "Minesweeper."
+---
+<!DOCTYPE html>
+
+<head>
+    <style type="text/css">
+    #game {
+        width: 40%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: auto auto auto;
+    }
+
+    .grid-item {
+        background-color: lightgrey;
+        border: 1px solid grey;
+        padding: 5px;
+        text-align: center;
+    }
+
+    .grid-item:hover {
+        opacity: 0.8;
+    }
+
+
+
+    @keyframes shake {
+        0% {
+            transform: translate(1px, 1px) rotate(0deg)
+        }
+
+        5% {
+            transform: translate(-1px, -2px) rotate(-1deg)
+        }
+
+        10% {
+            transform: translate(-3px, 0px) rotate(1deg)
+        }
+
+        15% {
+            transform: translate(3px, 2px) rotate(0deg)
+        }
+
+        20% {
+            transform: translate(1px, -1px) rotate(1deg)
+        }
+
+        25% {
+            transform: translate(-1px, 2px) rotate(-1deg)
+        }
+
+        30% {
+            transform: translate(-3px, 1px) rotate(0deg)
+        }
+
+        35% {
+            transform: translate(3px, 1px) rotate(-1deg)
+        }
+
+        40% {
+            transform: translate(-1px, -1px) rotate(1deg)
+        }
+
+        45% {
+            transform: translate(1px, 2px) rotate(0deg)
+        }
+
+        50% {
+            transform: translate(1px, -2px) rotate(-1deg)
+        }
+
+        55% {
+            transform: translate(1px, 1px) rotate(0deg)
+        }
+
+        60% {
+            transform: translate(-1px, -2px) rotate(-1deg)
+        }
+
+        65% {
+            transform: translate(-3px, 0px) rotate(1deg)
+        }
+
+        70% {
+            transform: translate(3px, 2px) rotate(0deg)
+        }
+
+        75% {
+            transform: translate(1px, -1px) rotate(1deg)
+        }
+
+        80% {
+            transform: translate(-1px, 2px) rotate(-1deg)
+        }
+
+        85% {
+            transform: translate(-3px, 1px) rotate(0deg)
+        }
+
+        90% {
+            transform: translate(3px, 1px) rotate(-1deg)
+        }
+
+        95% {
+            transform: translate(-1px, -1px) rotate(1deg)
+        }
+
+        96% {
+            transform: translate(1px, 2px) rotate(0deg)
+        }
+
+        100% {
+            transform: translate(1px, -2px) rotate(-1deg)
+        }
+    }
+    </style>
+    <script type="text/javascript">
+    var ctr, r, c, game_width, flags = 0
+    var mf
+
+    function reset() {
+        while (game.firstChild) { game.removeChild(game.firstChild) }
+        ctr = 0
+        for (var i = r; i > 0; i--) {
+            for (var j = c; j > 0; j--) { addSq() }
+        }
+        normalize_grid()
+        make_field()
+    }
+
+    function startUp() {
+        game = document.getElementById("field");
+        r = 15
+        c = 15
+        ratio = 0.8
+
+        game_width = game.clientWidth;
+        // game.style.height = game_width * (r / c) + "px";
+        reset()
+
+    }
+
+    function normalize_grid() {
+        document.getElementById("field").style.gridTemplateColumns = "auto ".repeat(c)
+        var all = document.getElementsByClassName('grid-item');
+        for (var i = 0; i < all.length; i++) {
+            all[i].style.width = ((game_width - c) / (c) - 1) + "px";
+            all[i].style.height = ((game_width * ratio - r) / (r) - 1) + "px";
+        }
+    }
+
+    function increment_surrounds(x, y) {
+        for (var i = Math.max(x - 1, 0); i <= Math.min(x + 1, c - 1); i++) {
+            for (var j = Math.max(y - 1, 0); j <= Math.min(y + 1, r - 1); j++) {
+                if (i >= 0, j >= 0, mf[i][j] >= 0) {
+                    mf[i][j]++
+                }
+            }
+        }
+    }
+
+    function make_field() {
+        mf = Array(r).fill(0).map(x => Array(c).fill(0))
+        flags = Math.ceil(r * c / 5)
+        updateFlags(0)
+        for (var i = flags; i > 0;) {
+            x = Math.floor(Math.random() * r)
+            y = Math.floor(Math.random() * r)
+            if (mf[x][y] >= 0) {
+                mf[x][y] = -1
+                increment_surrounds(x, y)
+                i--
+            }
+        }
+    }
+
+    function updateFlags(inc) {
+        flags = flags + inc
+        document.getElementById("flags").innerText = "Flags: " + flags;
+        if (flags == 0) {
+            var all = document.getElementsByClassName('grid-item');
+            if (all.every(x => !x.style.backgroundColor == 'grey')) {
+                change("green")
+            }
+        }
+    }
+
+    function change(col) {
+        game.style.animation = 'shake 1s'
+        var all = document.getElementsByClassName('grid-item');
+        for (var i = 0; i < all.length; i++) {
+            all[i].style.backgroundColor = col
+            all[i].innerHTML = ""
+        }
+    }
+
+    function pentest(id) {
+        y = id % c
+        x = Math.floor(id / c)
+        console.log(id, x, y)
+        res = mf[x][y]
+        if (res < 0) {
+            change('red')
+            return
+        }
+        aba = document.getElementById("c" + id)
+        if (aba.style.backgroundColor == 'red') {
+            updateFlags(1)
+        }
+        aba.innerHTML = res
+        aba.style.backgroundColor = 'lime'
+    }
+
+    function marked(id) {
+        aba = document.getElementById("c" + id)
+        if (aba.style.backgroundColor != 'red') {
+            aba.style.backgroundColor = 'red'
+            updateFlags(-1)
+        } else {
+            aba.style.backgroundColor = 'grey'
+            updateFlags(1)
+        }
+    }
+
+    function addSq() {
+        let d = document.createElement("div");
+        game = document.getElementById("field")
+        d.setAttribute("class", "grid-item");
+        d.setAttribute("onClick", "pentest('" + ctr + "')")
+        d.setAttribute("oncontextmenu", "marked('" + ctr + "')")
+        d.setAttribute("id", "c" + ctr);
+
+        ctr++
+        game.appendChild(d);
+    }
+
+    function updateSize(v) {
+        r = parseInt(v,10)
+        c = parseInt(v,10)
+        reset()
+    }
+    </script>
+</head>
+
+<body oncontextmenu="return false;">
+    <div id="game">
+        <div id="flags">
+            Flags: 0
+        </div>
+        <div id="field" class="grid-container">
+        </div>
+    </div>
+    <button id="reset" onclick="reset()">Reset</button>
+    <input type="range" name="points"  onchange="updateSize(this.value)" min="10" max="20">
+    <script type="text/javascript">
+    startUp()
+    </script>
+</body>

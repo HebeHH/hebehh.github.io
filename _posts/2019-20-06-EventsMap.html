@@ -1,0 +1,124 @@
+---
+title: "Map of Disasters and Conflicts around the Globe."
+date: 2019-06-06 01:14:07
+image: '/assets/'
+excerpt: "An interactive map of recent disasters and conflicts around the world."
+tags: javascript html css mapping geojson api
+layout: completely_blank
+---
+<html>
+
+<head>
+    <!-- <link rel="stylesheet" type="text/css" src="{{github.hebehh.io}}/assets/map.css" /> -->
+    <style type="text/css">
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        padding: 2px;
+        font: 12px sans-serif;
+        text-decoration: bold;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+    .container {
+        margin-top: 2%;
+    }
+
+    div.clicktip {
+        position: absolute;
+        text-align: center;
+        background-color: moccasin;
+        padding: 4px;
+        font: 12px sans-serif;
+        text-decoration: bold;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+        color: black;
+    }
+    #disasters {
+        display: none;
+    }
+
+    #conflicts {
+        display: none;
+    }
+    .selectables_div {
+        padding-left: 2%;
+        padding-right: 2%;
+        /*column-width: 150px;*/
+        width: 45%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .selectables {
+        column-count: 3;
+        vertical-align: top;
+        font-size: 0.7em;
+    }
+
+    div.details {
+        padding-left: 10%;
+        padding-right: 10%;
+        padding-bottom: 4%;
+        /*font-family: 'Muli', sans-serif;*/
+    }
+
+    div.item {
+        padding-top: 10%
+    }
+
+    h3,h4 {
+        margin-bottom: 0px;
+        margin-block-end: 0.2em;
+    }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script rel="preload" src="{{github.hebehh.io}}/assets/country_json.js"></script>
+    <script src="{{github.hebehh.io}}/assets/event_api_calls.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Muli&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <script src="{{github.hebehh.io}}/assets/map.js"></script>
+    <div class="container">
+        <div class="map"></div>
+        <div class='selectables_div' id="disaster_selectables">
+            <div>
+                <h4><span>&#x21F3;</span> <input type="checkbox" name="show_disaster" value="show_disaster" checked>
+                    Select Disasters: </h4>
+            </div>
+            <div class="selectables"></div>
+        </div>
+        <div class='selectables_div' id="conflicts_selectables">
+            <div>
+                <h4><span>&#x21F3;</span> <input type="checkbox" name="show_conflicts" value="show_conflicts" checked>
+                    Select Conflicts: </h4>
+                <span>&nbsp;&nbsp;       &nbsp;</span>Credit to the ACLED API.<br>
+                <span>&nbsp;&nbsp;       &nbsp;</span><input type="checkbox" name="hide_harmless" value="hide_harmless" checked> Hide conflicts with no deaths
+            </div>
+            <div class="selectables"></div>
+        </div>
+        <div class="details">
+            <div id="country_title"></div>
+            <div id="events">
+                <div id="conflicts">
+                    <h2>ACLED Conflicts:</h2>
+                    <div class="items"></div>
+                </div>
+                <div id="disasters">
+                    <h2>Disasters:</h2>
+                    <div class="items"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="{{github.hebehh.io}}/assets/map.js"></script>
+</body>
+
+</html>
