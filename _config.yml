@@ -1,6 +1,6 @@
-title: "Speaking in Binaries"
+title: "Debugging Diary"
 author: "Hebe Hilhorst"
-description: "Random ramblings"
+description: "My life as someone who is moderately good at googling things"
 more: "read more »"
 url: "http://localhost:4000"
 # baseurl: "http://localhost:4000"
@@ -17,8 +17,8 @@ navigation:
   - archive.html
   - about.md
 
-comments:
-  disqus: "disqus-contrast"
+# comments:
+#   disqus: "disqus-contrast"
   # isso: "comments.mysite.org"
 
 links: # see http://fontawesome.io/icons/#brand for all possible icons

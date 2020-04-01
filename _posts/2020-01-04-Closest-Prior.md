@@ -2,7 +2,7 @@
 title: "Getting the Closest Prior from a list"
 date: 2020-01-04 09:40:07
 image: '/assets/'
-description:
+excerpt: "Sometimes I'll spend half an hour coming up with a complex, elegant solution to a problem, then instantly be hit by a simple fix that makes all that work worthless."
 tags: lists
 categories: snippets
 twitter_text:
