@@ -3,7 +3,7 @@ title: "Getting the Closest Prior from a list"
 date: 2020-01-04 09:40:07
 image: '/assets/'
 excerpt: "Sometimes I'll spend half an hour coming up with a complex, elegant solution to a problem, then instantly be hit by a simple fix that makes all that work worthless."
-tags: lists
+tags: lists javascript
 categories: snippets
 twitter_text:
 ---
@@ -99,7 +99,7 @@ and then dividing by that inverts the magnitude of each number, to leave the clo
 
 **Me:** Here you are!
 
-**Him:** Ahhh I guess I'll just iterate over it.
+**Him:** Ahhh. I guess I'll just iterate over it.
 
 **Me:** Huh? You wanted a sort function and this works.
 

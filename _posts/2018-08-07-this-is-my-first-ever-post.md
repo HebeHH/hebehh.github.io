@@ -3,7 +3,7 @@ title: "Simpler Topic Modelling with Reddit News"
 date: 2018-08-07 01:14:07
 image: '/assets/'
 description:
-tags: python NLP topic-modelling reddit news
+tags: python NLP topic-modelling
 categories:
 twitter_text:
 ---
