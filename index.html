@@ -4,15 +4,13 @@ layout: blank
 ---
 <main>
     {% for page in paginator.posts %}
-    <article>
           <div class="articlecard" onclick="location.href='{{ page.url | prepend: site.baseurl }}';">
             <header>
-                <h1>{{ page.title }}</h1>
+                <h2>{{ page.title }}</h2>
                 <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %-d, %Y" }}</time>
             </header>
             {{ page.excerpt }}
           </div>
-    </article>
     {% endfor %}
 </main>
 {% if paginator.total_pages > 1 %}

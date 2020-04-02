@@ -20,7 +20,7 @@ get_closest_prior(5, ls)
 
 The conversation went something like this.
 
-
+<br>
 
 **Me:** Why don't you just iterate?
 
@@ -32,7 +32,7 @@ The conversation went something like this.
 
 **Me:** Uhhh... give me a sec.
 
-
+<br>
 
 So in my mind there's two parts to this. You want all numbers greater than `x` to be at the end of the list. Then, at the front of the list, you want all numbers smaller than `x` to be sorted in reverse order. Basically, given a sorted list with `x` in the middle:
 
@@ -76,8 +76,7 @@ This sort function is basically normal sort, on a transformed array. Each array 
 </div> 
 <div style="height:1.5em;width:100%"> 
   <div style="background:linear-gradient(to right, #24C6DC, #4788bc); height:1.5em;width:40%;margin-left:10%;float:left"></div>
-  <div style="height:1.5em;width:0.8em;float:left;text-align:center
-"><sup>^</sup></div>
+  <div style="height:1.5em;width:0.8em;float:left;text-align:center"> <sup>^</sup></div>
   <div style="background:linear-gradient(to right, #4788bc, #514A9D); height:1.5em;width:40%;float:left"></div>
 </div> 
 
@@ -95,7 +94,7 @@ and then dividing by that inverts the magnitude of each number, to leave the clo
   <div style="background:linear-gradient(to right, #514A9D, #4788bc); height:1.5em;width:40%;float:left"></div>
 </div> 
 
-
+<br>
 
 **Me:** Here you are!
 
