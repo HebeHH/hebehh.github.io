@@ -67,7 +67,7 @@ function sort_closest_prior(x, a, b) {
 }
 ~~~
 
-This sort function is basically normal sort, on a transformed array. Each array element `e` is transformed by $\frac{1}{e-x}$. Subtracting `x` recenters the array so that `x` = zero,
+This sort function is basically normal sort, on a transformed array. Each array element `e` is transformed by $$\frac{1}{e-x}$$. Subtracting `x` recenters the array so that `x` = zero,
 
 <div style="height:1.5em;width:100%"> 
   <div style="height:1.5em;width:40%;margin-left:10%;float:left">&larr; negative</div>
