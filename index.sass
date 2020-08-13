@@ -7,12 +7,22 @@
 .articlecard
   cursor: pointer
   background-color: #fbfbfb
-  padding: 0.3em 2em  0.3em 2em
+  padding: 0.7em 2em 1em 2em
+  border-radius: 0.6em
   box-shadow: 0.4em 0.3em 0.3em #cccccc
-  margin: 0.7em calc(35% - 6em)
+  margin: 1.2em calc(35% - 6em)
 .articlecard header
   text-align: center
   margin-bottom: 0.3em
+
+.selectbar
+  display: flex
+  justify-content: space-evenly
+  background-color : #f139a8
+  padding: 0.7em calc(35% - 6em)
+  color: white
+
+
 
 body
   display: flex
@@ -23,13 +33,13 @@ body
 {% if site.style.dark %}
 
 body
-  background: #2d2d2d
+  background: #e3e7ec
   color: white
 
 {% else %}
 
 body
-  background: white
+  background: #e3e7ec
   color: #222
 
 {% endif %}
@@ -50,7 +60,7 @@ article, body > footer
 @import anchor
 
 html
-  background-color: indigo  
+  background-color: #e3e7ec  
 
 article
   border-top: 1px solid rgba(148, 148, 148, .08)
@@ -62,12 +72,13 @@ article:first-of-type
 article, body > footer
   padding: 0.7em calc(35% - 6em)
 
+
 body > header
-  background-image: url('assets/scenic1.jpg')
-  background-position: center
+  background-image: url('assets/lights1.jpg')
+  background-position: bottom
   background-size: cover
   color: grey
-  padding: 4.5em calc(22% - 4em)
+  padding: 10em calc(22% - 4em) 0.1em calc(22% - 4em)
   text-align: right
 
 

@@ -2,7 +2,8 @@
 title: "Brittle File I/O"
 date: 2020-04-10 09:40:07
 image: '/assets/'
-excerpt: "Today I spent about two minutes writing a little python batch processor, and then another ten wondering why it suddenly stopped working. It was a good reminder that platform-independence is hard to come by, no matter how high-level and abstract the language."
+excerpt: "Today I spent about two minutes writing a little python batch processor, and then another ten wondering why it suddenly stopped working. It was a good reminder that platform-independence is hard to come by, no matter how high-level and abstract the language.<br>
+"
 tags: python bash portability
 categories: snippets
 twitter_text:

@@ -13,7 +13,7 @@ At Staple, we recently realized that we've passed the *make it work* and  *make 
 
 As a project is built out, it gathers more and more keys and secrets that should really remain as private as possible. The potential consequences of breached confidentiality can vary from unauthorized API calls to a data leak; potentially costly in money and reputation. It's helpful to have some extra encryptions and abstraction to manage access to everything.
 
-Today I made my way through most of the *[Getting Started](https://learn.hashicorp.com/collections/vault/getting-started)* Docs, which are actually a great guide to get to know the Vault through experience, without throwing you in the deep end. However, it did take me awhile to gain a big-picture understanding of what exactly was going on, so I thought I'd try consolidating my thoughts in a way that might be useful to other people without experience with KVMs.
+Today I made my way through most of the [Getting Started](https://learn.hashicorp.com/collections/vault/getting-started) Docs, which are actually a great guide to get to know the Vault through experience, without throwing you in the deep end. However, it did take me awhile to gain a big-picture understanding of what exactly was going on, so I thought I'd try consolidating my thoughts in a way that might be useful to other people without experience with KVMs.
 
 The Vault is pretty easy to use, and I've liked using it so far. I'd say it has three main aspects:
 

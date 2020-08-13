@@ -1,10 +1,10 @@
-title: "Debugging Diary"
+title: "git commit"
 author: "Hebe Hilhorst"
 description: "My life as someone who is moderately good at googling things"
 more: "read more »"
 url: "http://localhost:4000"
 # baseurl: "http://localhost:4000"
-paginate: 8
+paginate: 100
 permalink: pretty
 excerpt_separator: "\n\n\n" # two blank lines
 
