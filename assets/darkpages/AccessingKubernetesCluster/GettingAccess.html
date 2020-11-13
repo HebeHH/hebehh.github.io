@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+
+<head>
+    <style type="text/css">
+    #overlay {
+        background-color: grey;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 5%;
+        z-index: 10;
+        opacity: 0;
+        animation-name: example;
+        animation-duration: 2s;
+        border-radius: 10px;
+    }
+
+    @keyframes example {
+        0% {opacity: 0;}
+        40% {opacity: 75;}
+        60% {opacity: 75;}
+        100% {opacity: 0;}
+    }
+
+    body {
+        background-color: #073c4d;
+        font-family: Verdana, Geneva, sans-serif;
+        position: relative;
+    }
+
+    .card {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5em;
+        margin-bottom: 5em;
+        padding: 3em;
+        padding-top: 0.01em;
+        background-color: #FDFFFC;
+        /*font-size: 1.5em;*/
+        border-radius: 10px;
+    }
+
+    .header {
+        color: navy;
+        font-weight: bold;
+        margin-top: 2.5em;
+        margin-bottom: 1.2em;
+        text-align: center;
+        /*margin: 1em;*/
+        font-size: 1.3em;
+    }
+
+    .instruction {
+        padding: 1em;
+        margin-left: 10%;
+        margin-right: 10%;
+        line-height: 1.5;
+    }
+
+    .code {
+        padding: 0.4em;
+        margin: 0.2em;
+        margin-bottom: 1em;
+        background-color: #1C0B19;
+        color: #06d6a0;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.8em;
+        border-radius: 3px;
+    }
+
+    .columns {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .column {
+        width: 45%;
+        display: inline-flex;
+        justify-content: flex-start;
+        background-color: #bfbfbf;
+        flex-direction: column;
+        padding: 2%;
+        margin-top: 1em;
+    }
+
+    .c3 {
+        width: 26%;
+    }
+
+    .myButton {
+        background: linear-gradient(to bottom, #ff0f0f 50%, #a82c05 100%);
+        text-shadow: 0px 1px 0px black;
+        border-radius: 27px;
+        display: inline-block;
+        cursor: pointer;
+        color: white;
+        font-family: Verdana;
+        font-size: 14px;
+        padding: 7px 24px;
+        text-decoration: none;
+        margin-bottom: 1em;
+        text-align: center;
+        float: center;
+    }
+
+    .success {
+        background: linear-gradient(to bottom, #17eb4e 5%, #2a7903 100%);
+    }
+
+    .alert {
+        background: linear-gradient(to bottom, #ffab24 10%, #ad5e07 100%);
+    }
+
+    .error {
+        background: linear-gradient(to bottom, #ff0f0f 50%, #a82c05 100%);
+    }
+
+    .success:hover {
+        background: linear-gradient(to bottom, lime 5%, lime 100%);
+        color: black;
+        text-shadow: none;
+    }
+
+    .alert:hover {
+        background: linear-gradient(to bottom, gold 5%, gold 100%);
+        color: black;
+        text-shadow: none;
+    }
+
+    .error:hover {
+        background: linear-gradient(to bottom, red 5%, red 100%);
+        color: black;
+        text-shadow: none;
+    }
+
+    .myButton:active {
+        position: relative;
+        top: 2px;
+        left: 2px;
+    }
+    }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        var overlay = $("<div id='overlay' onclick='remove()'></div>");
+        var parent = $("body");
+        var clusterName = "scratch-cluster";
+        var region = "ap-southeast-1";
+        var accountID = "238288103121";
+
+        $(document).ready(function() {
+            $('.clusterName').text(clusterName);
+            $('.region').text(region);
+            $('.card').css('display', 'none');
+            $('#start').css('display', 'block');
+        });
+
+        function next(nextID) {
+            console.log('overlay')
+            overlay = overlay.appendTo('body');
+            setTimeout(function() {
+                $('.card').css('display', 'none');
+                $('#' + nextID).css('display', 'block');
+            }, 1000);
+            setTimeout(function() {
+                $('#overlay').remove()
+            }, 2000);
+            return false;
+        }
+
+        function remove(nextID) {
+            $('#overlay').remove()
+            return false;
+        }
+    </script>
+</head>
+
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <div id='main'>
+        <div class='card' id='runawsversion'>
+            <div class='header'>
+                Run this command in your terminal:
+            </div>
+            <div class='code' style='font-size: 1.2em'>
+                aws --version
+            </div>
+            <div class='header'>
+                Then proceed according to your output:
+            </div>
+            <div class='columns'>
+                <div class='column c3'>
+                    <div class="myButton success" onclick="next('getcallerid')">
+                        aws-cli version >= 1.16
+                    </div>
+                    <div class='code'>
+                        aws-cli/<strong>1.18.68</strong> Python/3.7.6 Darwin/19.6.0 botocore/1.16.18
+                    </div>
+                </div>
+                <div class='column c3'>
+                    <div class="myButton alert" onclick="next('updateawscli')">
+                        aws-cli version < 1.16 </div> <div class='code'>
+                            aws-cli/<strong>1.15.68</strong> Python/3.7.6 Darwin/19.6.0 botocore/1.16.18
+                    </div>
+                </div>
+                <div class='column c3'>
+                    <div class="myButton error" onclick="next('setupawscli')">
+                        Error
+                    </div>
+                    <div class='code'>
+                        No such command
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='card' id='getcallerid'>
+            <div class='header'>
+                Run this command in your terminal:
+            </div>
+            <div class='code' style='font-size: 1.2em'>
+                aws sts get-caller-identity
+            </div>
+            <div class='header'>
+                Then proceed according to your output:
+            </div>
+            <div class='columns'>
+                <div class='column'>
+                    <div class="myButton success" onclick="next('iamauthenticator')">
+                        Success
+                    </div>
+                    <div class='code'>
+                        { <br>
+                        &emsp; "UserId": "AWSIDAWSIDAWSID", <br>
+                        &emsp; "Account": "<span class='accountID'></span>", <br>
+                        &emsp; "Arn": "arn:aws:iam::<span class='accountID'></span>:user/Name" <br>
+                        }
+                    </div>
+                </div>
+                <div class='column'>
+                    <div class="myButton error" onclick="next('contactawsadmin')">
+                        Error
+                    </div>
+                    <div class='code'>
+                        The config profile could not be found
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='card' id='iamauthenticator'>
+            <div class='header'>
+                Run this command in your terminal:
+            </div>
+            <div class='code' style='font-size: 1.2em'>
+                aws-iam-authenticator version
+            </div>
+            <div class='header'>
+                Then proceed according to your output:
+            </div>
+            <div class='columns'>
+                <div class='column'>
+                    <div class="myButton success" onclick="next('eksgettoken')">
+                        Success
+                    </div>
+                    <div class='code'>
+                        {<br>
+                        &emsp; "Version" : "v0.5.2", <br>
+                        &emsp; "Commit" : "292b9b82df69b87af962b92485b254d9f4b10f00"<br>
+                        }
+                    </div>
+                </div>
+                <div class='column'>
+                    <div class="myButton error" onclick="next('setupiamauth')">
+                        Error
+                    </div>
+                    <div class='code'>
+                        command not found: aws-iam-authenticator
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='card' id='eksgettoken'>
+            <div class='header'>
+                Run this command in your terminal:
+            </div>
+            <div class='code' style='font-size: 1.2em'>
+                aws eks get-token --cluster-name <span class='clusterName'></span>
+            </div>
+            <div class='header'>
+                Then proceed according to your output:
+            </div>
+            <div class='columns'>
+                <div class='column'>
+                    <div class="myButton success" onclick="next('kubeversion')">
+                        Success
+                    </div>
+                    <div class='code'>
+                        { <br>
+                        &emsp; "kind": "ExecCredential", <br>
+                        &emsp; "apiVersion": "client.authentication.k8s.io/v1alpha1", <br>
+                        &emsp; "spec": <br>
+                        &emsp; {}, <br>
+                        &emsp; "status": <br>
+                        &emsp; { <br>
+                        &emsp; &emsp; "expirationTimestamp": "2020-11-05T13:32:44Z", <br>
+                        &emsp; &emsp; "token": "k8s-aws-v1.LONG_ACCESS_TOKEN" <br>
+                        &emsp; } <br>
+                        }
+                    </div>
+                </div>
+                <div class='column'>
+                    <div class="myButton error" onclick="next('plsgivetoken')">
+                        Error
+                    </div>
+                    <div class='code'>
+                        access denied
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='card' id='kubeversion'>
+            <div class='header'>
+                Run this command in your terminal:
+            </div>
+            <div class='code' style='font-size: 1.2em'>
+                kubectl version
+            </div>
+            <div class='header'>
+                Then proceed according to your output:
+            </div>
+            <div class='columns'>
+                <div class='column'>
+                    <div class="myButton success" onclick="next('pleaserun')">
+                        Success
+                    </div>
+                    <div class='code'>
+                        Client Version: version.Info { Major: "1", Minor: "18", GitVersion: "v1.18.0", GitCommit: "9e991415386e4cf155a24b1da15becaa390438d8", GitTreeState: "clean", BuildDate: "2020-03-25T14:58:59Z", GoVersion: "go1.13.8", Compiler: "gc", Platform: "darwin/amd64" }<br>
+                        Server Version: version.Info { Major: "1", Minor: "16+", GitVersion: "v1.16.13-eks-2ba888", GitCommit: "2ba888155c7f8093a1bc06e3336333fbdb27b3da", GitTreeState: "clean", BuildDate: "2020-07-17T18:48:53Z", GoVersion: "go1.13.9", Compiler: "gc", Platform: "linux/amd64" }
+                    </div>
+                </div>
+                <div class='column'>
+                    <div class="myButton error" onclick="next('setupkubectl')">
+                        Error
+                    </div>
+                    <div class='code'>
+                        command not found: kubectl
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='card' id='pleaserun'>
+            <div class='header'>
+                Run this command in your terminal:
+            </div>
+            <div class='code' style='font-size: 1.2em'>
+                aws eks --region <span class='region'></span> update-kubeconfig --name <span class='clusterName'></span>
+            </div>
+            <div class='header'>
+                Then proceed according to your output:
+            </div>
+            <div class='columns'>
+                <div class='column'>
+                    <div class="myButton success" onclick="next('podview')">
+                        Success
+                    </div>
+                    <div class='code'>
+                        Added new context arn:aws:eks:<span class='region'></span>:<span class='accountID'></span>:cluster/<span class='clusterName'></span> to /Users/Name/.kube/config
+                    </div>
+                </div>
+                <div class='column'>
+                    <div class="myButton error" onclick="next('contactkubeadmin')">
+                        Error
+                    </div>
+                    <div class='code'>
+                        An error occured
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='card' id='podview'>
+            <div class='header'>
+                Run this command in your terminal:
+            </div>
+            <div class='code' style='font-size: 1.2em'>
+                kubectl get pods
+            </div>
+            <div class='header'>
+                Then proceed according to your output:
+            </div>
+            <div class='columns'>
+                <div class='column'>
+                    <div class="myButton success" onclick="next('complete')">
+                        Success
+                    </div>
+                    <div class='code'>
+                        NAME READY STATUS RESTARTS AGE <br>
+                        hello-node 1/1 Running 0 43s
+                    </div>
+                </div>
+                <div class='column'>
+                    <div class="myButton error" onclick="next('kuberror')">
+                        Error
+                    </div>
+                    <div class='code'>
+                        An error occured
+                    </div>
+                </div>
+            </div>
+            <div class='columns'>
+                <div class='column'>
+                    <div class="myButton alert" onclick="next('forbidden')">
+                        Forbidden
+                    </div>
+                    <div class='code'>
+                        Error from server (Forbidden): pods is forbidden: User "Name" cannot list resource "pods" in API group "" in the namespace "default"
+                    </div>
+                </div>
+                <div class='column'>
+                    <div class="myButton alert" onclick="next('forbidden')">
+                        Unauthorized
+                    </div>
+                    <div class='code'>
+                        error: You must be logged in to the server (Unauthorized)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='card' id='setupawscli'>
+            <div class='header'>
+                Set up the AWS CLI:
+            </div>
+            <div class='instruction'>
+                Before you can proceed, you must set up the AWS Command Line Utility (CLI) in order to access the Kubernetes Cluster. This requires an AWS identity with the appropriate permissions; if you do not have this, contact your AWS administrator.
+                <br>
+                <br>
+                To set up the AWS CLI, please refer to these resources:
+                <ul>
+                    <li>The AWS official walkthrough:
+                        <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html">here</a>
+                    </li>
+                    <li>This simpler Cloud Academy walkthrough:
+                        <a href="https://cloudacademy.com/blog/how-to-use-aws-cli/">here</a>
+                    </li>
+                    <li>Any other walkthrough you find on Google.
+                    </li>
+                </ul>
+                <br>
+                Make sure you follow the correct instructions for your machine. Continue once you have the CLI installed.
+                <br>
+                <br>
+                <div class="myButton success" style='float: right' onclick="next('runawsversion')">
+                    Installed
+                </div>
+            </div>
+        </div>
+        <div class='card' id='updateawscli'>
+            <div class='header'>
+                Update the AWS CLI:
+            </div>
+            <div class='instruction'>
+                Accessing an Amazon Kubernetes cluster requires the AWS Command Line Interface (CLI) at version 1.16 or greater. If you are using an older version, you are required to upgrade before proceeding. Version 1.X is the original AWS CLI, which you currently use. Amazon has subsequently released Version 2 of the CLI, which they recommend. However, there are some breaking changes. You may choose either major version, but must upgrade to version 1.16 or greater.
+                <br><br>
+                To upgrade the AWS CLI, please refer to these resources:
+                <ul>
+                    <li>The AWS official walkthrough to upgrade your Version 1:
+                        <a href="https://docs.aws.amazon.com/cli/latest/userguide/install-cliv1.html">here</a>
+                    </li>
+                    <li>The AWS official walkthrough to upgrade to Version 2:
+                        <a href="https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html">here</a>
+                    </li>
+                    <li>Any other walkthrough you find on Google.</li>
+                </ul>
+                <br>
+                Make sure you follow the correct instructions for your machine. Continue once you have finished the installation.
+                <br><br>
+                <div class="myButton success" style='float: right' onclick="next('runawsversion')">
+                    Upgraded
+                </div>
+            </div>
+        </div>
+        <div class='card' id='contactawsadmin'>
+            <div class='header'>
+                Get an Identity
+            </div>
+            <div class='instruction'>
+                Accessing AWS resources requires a valid AWS identity set up on your machine. The previous command checked for that. If this gives you an error, you either do not have a valid identity, have not properly linked it to your machine, or have an issue with the AWS CLI.
+                <br><br>
+                You will need to fix this error before proceeding. If needed, please contact your AWS administrator with the error code for assistance.
+                <br><br>
+                <div class="myButton success" style='float: right' onclick="next('getcallerid')">
+                    Fixed
+                </div>
+            </div>
+        </div>
+        <div class='card' id='setupiamauth'>
+            <div class='header'>
+                Installing the aws-iam-authenticator
+            </div>
+            <div class='instruction'>
+                You are going to be authenticating yourself to Kubernetes using your Amazon IAM identity. In order for Kubernetes to recognize this as valid, you need the aws-iam-authenticator as a go-between.
+                <br><br>
+                To install the aws-iam-authenticator, please refer to these resources:
+                <ul>
+                    <li>The AWS official walkthrough:
+                        <a href="https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html">here</a>
+                    </li>
+                    <li>The Kubernetes GitHub walkthrough:
+                        <a href="https://github.com/kubernetes-sigs/aws-iam-authenticator">here</a>
+                    </li>
+                    <li>Any other walkthrough you find on Google.</li>
+                </ul>
+                <br>
+                Make sure you follow the correct instructions for your machine. Continue once you have finished the installation.
+                <br><br>
+                <div class="myButton success" style='float: right' onclick="next('iamauthenticator')">
+                    Installed
+                </div>
+            </div>
+        </div>
+        <div class='card' id='plsgivetoken'>
+            <div class='header'>
+                Resolve get-token
+            </div>
+            <div class='instruction'>
+                Amazon uses the get-token subroutine in order to verify your identity for cluster access.
+                <br><br>
+                You will need to fix this error before proceeding. Please contact your AWS administrator with the error code for assistance.
+                <br><br>
+                <div class="myButton success" style='float: right' onclick="next('eksgettoken')">
+                    Fixed
+                </div>
+            </div>
+        </div>
+        <div class='card' id='setupkubectl'>
+            <div class='header'>
+                Installing Kubectl
+            </div>
+            <div class='instruction'>
+                You will communicate with the Amazon Kubernetes cluster using the kubectl command line tool. There are a lot of resources available for this, as it is the primary way of interacting with any Kubernetes cluster, not just the AWS one.
+                <br><br>
+                Feel free to install your own local Kubernetes cluster if you wish to have your own testing sandbox to explore. I recommend <a href="https://minikube.sigs.k8s.io/docs/start/">minikube</a>. This is unnecessary but will give you more freedom to learn, as access to the AWS cluster may be restricted.
+                <br><br>
+                To install the kubectl, please refer to these resources:
+                <ul>
+                    <li>The AWS official walkthrough:
+                        <a href="https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html">here</a>
+                    </li>
+                    <li>The Kubernetes official walkthrough:
+                        <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl/">here</a> (Recommended)
+                    </li>
+                    <li>Any other walkthrough you find on Google. You will be able to find a lot more for this since it's not Amazon-specific, so look around for whatever tutorial best suits you. </li>
+                </ul>
+                <br>
+                Make sure you follow the correct instructions for your machine. Continue once you have finished the installation.
+                <br><br>
+                <div class="myButton success" style='float: right' onclick="next('')">
+                    Installed
+                </div>
+            </div>
+        </div>
+        <div class='card' id='contactkubeadmin'>
+            <div class='header'>
+                Add Cluster
+            </div>
+            <div class='instruction'>
+                This command is required to link your local kubectl to the AWS cluster. Please return to the start and verify that <strong>all</strong> previous commands have succeeded.
+                <br><br>
+                If this fails a second time, please contact both your AWS administrator and your Kubernetes administrator with the error code.
+                <br><br>
+                <div class="myButton success" style='float: right' onclick="next('start')">
+                    Verify
+                </div>
+            </div>
+        </div>
+        <div class='card' id='forbidden'>
+            <div class='header'>
+                Well Done!
+            </div>
+            <div class='instruction'>
+                Congratulations! You have successfully accessed the <span class="clusterName"></span> cluster! This message indicates that you have properly set up your configuration, and there's nothing left to be done on your side.
+                <br><br>
+                The error message indicates that you do not have access to the cluster, either because the administrator has not added your details correctly or because you do not have permission for this action.
+                <br><br>
+                To resolve this, you will need to contact your Kubernetes administrator. To get it fixed quickly, send them these commands <strong>and outputs</strong>:
+                <br><br>
+                <div class='code' style='font-size: 1em'>
+                    kubectl get pods <br>
+                    kubectl config get-contexts <br>
+                    kubectl config view --minify <br>
+                    aws sts get-caller-identity <br>
+                </div>
+                <br><br>
+                <div class="myButton success" style='float: right' onclick="next('complete')">
+                    Success
+                </div>
+            </div>
+        </div>
+        <div class='card' id='kuberror'>
+            <div class='header'>
+                Different error
+            </div>
+            <div class='instruction'>
+                If you're faced with a different error, please contact your Kubernetes administrator and proceed after it's resolved
+                <br><br>
+                <div class="myButton success" style='float: right' onclick="next('podview')">
+                    Fixed
+                </div>
+            </div>
+        </div>
+        <div class='card' id='complete'>
+            <div class='header' style='font-size: 3em; color: limegreen;'>
+                Congratulations!!
+            </div>
+            <div class='instruction'>
+                You have successfully installed kubectl and connected it to the Amazon cluster!
+                <br><br>
+                You're done with this walkthrough.
+            </div>
+        </div>
+        <div class='card' id='start'>
+            <div class='header'>
+                Welcome!
+            </div>
+            <div class='instruction'>
+                This guide will walk you through the steps neccessary to get access to our Amazon EKS Kubernetes cluster on your local machine.
+                <br><br>
+                While you'll be directed to other tutorials for most of the distinct installation directions, this guide is intended to make sure you've installed all the dependencies in the correct order. It's mostly a collection of Amazon tutorials, but let's face it, those are far from straightforward. This should give you a clear guide to the necessary steps, while checking that you meet all requirements for the set-up to proceed smoothly, and providing easy debugging for any issues. By the end, you will have access to our <span class='clusterName'></span> cluster.
+                <br><br>
+                This works by providing you with verification commands to run. If the command succeeds, you will continue to the next step. If it fails, you'll see how to fix it. Each command comes with examples of the success and failure states. <strong>Please note that your results may vary from these examples, especially if you're not using Mac.</strong> However, you should get the general idea. When in doubt, assume it failed.
+                <br><br>
+                <div class="myButton success" style='float: right' onclick="next('runawsversion')">
+                    Get started!
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

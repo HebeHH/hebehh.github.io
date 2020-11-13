@@ -1,0 +1,113 @@
+I"<p>So recently Hrishi came up to me and asked how I’d write a sort function that would, given a number <code class="highlighter-rouge">x</code>, sort a list such that the first item would be the one closest to, but smaller than, <code class="highlighter-rouge">x</code>. He wanted to use this in a function to get the closest prior from a list. Basically:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">ls</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">9</span><span class="p">]</span>
+<span class="nx">get_closest_prior</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="nx">ls</span><span class="p">)</span>
+<span class="o">&gt;&gt;</span> <span class="mi">7</span>
+<span class="nx">get_closest_prior</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="nx">ls</span><span class="p">)</span>
+<span class="o">&gt;&gt;</span> <span class="mi">5</span>
+</code></pre></div></div>
+
+<p>The conversation went something like this.</p>
+
+<p><br /></p>
+
+<p><strong>Me:</strong> Why don’t you just iterate?</p>
+
+<p><strong>Him:</strong>  I don’t want to iterate, sorting’s generally faster with less comparisons. Because inbuilt functions.</p>
+
+<p><strong>Me:</strong> Fair, but how are you sorting?</p>
+
+<p><strong>Him:</strong> That’s what I’m asking you.</p>
+
+<p><strong>Me:</strong> Uhhh… give me a sec.</p>
+
+<p><br /></p>
+
+<p>So in my mind there’s two parts to this. You want all numbers greater than <code class="highlighter-rouge">x</code> to be at the end of the list. Then, at the front of the list, you want all numbers smaller than <code class="highlighter-rouge">x</code> to be sorted in reverse order. Basically, given a sorted list with <code class="highlighter-rouge">x</code> in the middle:</p>
+
+<div style="height:1.5em;width:100%"> 
+  <div style="height:1.5em;width:40%;margin-left:10%;float:left">&larr; smallest</div>
+  <div style="height:1.5em;width:0.8em;float:left;text-align:center"><strong>x</strong></div>
+  <div style="height:1.5em;width:40%;float:left;text-align:right">biggest &rarr;</div>
+</div>
+<div style="height:1.2em;width:100%"> 
+  <div style="background:linear-gradient(to right, #24C6DC, #4788bc); height:1.2em;width:40%;margin-left:10%;float:left"></div>
+  <div style="height:1.2em;width:0.8em;float:left;text-align:center
+"><sup>^</sup></div>
+  <div style="background:linear-gradient(to right, #4788bc, #514A9D); height:1.2em;width:40%;float:left"></div>
+</div>
+
+<p>You want to sort the list something like this:</p>
+
+<div style="height:1.2em;width:100%"> 
+  <div style="background:linear-gradient(to right, #4788bc, #24C6DC); height:1.2em;width:40%;margin-left:10%;float:left"></div><div style="height:1.2em;width:0.8em;float:left;text-align:center"></div>
+  <div style="background:linear-gradient(to right, #4788bc, #514A9D); height:1.2em;width:40%;float:left"></div>
+</div>
+
+<p>I gave him this sorting function, with an appropriate try/catch block to handle divide by zero errors. Using try/catch means that the additional comparisons (ie whether a or b is equal to x) are only performed when necessary, instead of every time.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">sort_closest_prior</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="nx">a</span><span class="o">-</span><span class="nx">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="nx">b</span><span class="o">-</span><span class="nx">x</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+   			<span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This sort function is basically normal sort, on a transformed array. Each array element <code class="highlighter-rouge">e</code> is transformed by <script type="math/tex">\frac{1}{e-x}</script>. Subtracting <code class="highlighter-rouge">x</code> recenters the array so that <code class="highlighter-rouge">x</code> = zero,</p>
+
+<div style="height:1.5em;width:100%"> 
+  <div style="height:1.5em;width:40%;margin-left:10%;float:left">&larr; negative</div>
+  <div style="height:1.5em;width:0.8em;float:left;text-align:center"><strong>0</strong></div>
+  <div style="height:1.5em;width:40%;float:left;text-align:right">positive &rarr;</div>
+</div>
+<div style="height:1.2em;width:100%"> 
+  <div style="background:linear-gradient(to right, #24C6DC, #4788bc); height:1.2em;width:40%;margin-left:10%;float:left"></div>
+  <div style="height:1.2em;width:0.8em;float:left;text-align:center"> <sup>^</sup></div>
+  <div style="background:linear-gradient(to right, #4788bc, #514A9D); height:1.2em;width:40%;float:left"></div>
+</div>
+
+<p>and then dividing by that inverts the magnitude of each number, to leave the closest prior as the smallest item in the transformed array.</p>
+
+<div style="height:1.5em;width:100%"> 
+  <div style="height:1.5em;width:40%;margin-left:10%;float:left">&larr; negative</div>
+  <div style="height:1.5em;width:0.8em;float:left;text-align:center"><strong>0</strong></div>
+  <div style="height:1.5em;width:40%;float:left;text-align:right">positive &rarr;</div>
+</div>
+<div style="height:1.2em;width:100%"> 
+  <div style="background:linear-gradient(to right, #4788bc, #24C6DC); height:1.2em;width:40%;margin-left:10%;float:left"></div>
+  <div style="height:1.2em;width:0.8em;float:left;text-align:center
+"><sup>^</sup></div>
+  <div style="background:linear-gradient(to right, #514A9D, #4788bc); height:1.2em;width:40%;float:left"></div>
+</div>
+
+<p><br /></p>
+
+<p><strong>Me:</strong> Here you are!</p>
+
+<p><strong>Him:</strong> Ahhh. I guess I’ll just iterate over it.</p>
+
+<p><strong>Me:</strong> Huh? You wanted a sort function and this works.</p>
+
+<p><strong>Him:</strong> It’s got a divide.</p>
+
+<p><strong>Me:</strong> Yes it does.</p>
+
+<p><strong>Him:</strong> I don’t like floating points. They’re unpredictable and make debugging painful, I was hoping there’d be a way using just subtraction and <code class="highlighter-rouge">abs</code>.</p>
+
+<p><strong>Me:</strong> Like <code class="highlighter-rouge">abs(e-x)</code>?</p>
+
+<p><strong>Him:</strong> Yup, but that gives just the closest number to <code class="highlighter-rouge">x</code>, not the closest number <em>less than</em> <code class="highlighter-rouge">x</code>.</p>
+
+<p><strong>Me:</strong> What’s your plan if <code class="highlighter-rouge">x</code> is smaller than every element in the array?</p>
+
+<p><strong>Him:</strong> Just return <code class="highlighter-rouge">None</code>.</p>
+
+<p><strong>Me:</strong> …why not just <code class="highlighter-rouge">filter</code> out all elements greater than <code class="highlighter-rouge">x</code>, then sort descending?</p>
+
+<p><br /></p>
+
+<p>And that’s one story of how easy it is to complicate something far beyond necessity.</p>
+
+:ET

@@ -1,0 +1,2 @@
+I"T<p>At Staple, we recently realized that we’ve passed the <em>make it work</em> and  <em>make it work well</em> stages, and have now reached <em>make sure it never stops working</em>. Part of this involves implementing a proper Key Management System, to prevent our various secrets from leaking all over the internet.  We chose Vault.</p>
+:ET

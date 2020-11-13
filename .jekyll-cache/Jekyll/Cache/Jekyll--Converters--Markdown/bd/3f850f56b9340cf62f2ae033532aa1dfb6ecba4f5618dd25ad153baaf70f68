@@ -1,0 +1,394 @@
+I"��<p>During my last bout with insomnia I decided I wanted to get a bit more familiar with python’s <a href="https://developers.google.com/edu/python/regular-expressions">regex</a>, <a href="https://pandas.pydata.org/">pandas</a> and <a href="https://praw.readthedocs.io/en/latest/">PRAW Reddit API</a> all at the same time. This turned into an exploratory saga into <a href="https://www.kdnuggets.com/2016/07/text-mining-101-topic-modeling.html">topic modelling</a>, a fascinating subset of natural language processing that uncovers common topics within text data. As a random mini-task, I’d decided to try mining new r/news posts to find current popular topics, then return matching articles.</p>
+
+<p>Typically, it’s as complicated as it is useful. Categorizing organic text requires contextual pattern recognition that’s easy for humans, but not rule-based enough to easily program. It’s most successfully done through unsupervised machine learning, generally going something like this:</p>
+
+<ul>
+  <li>Clean data: Remove stopwords and transform into a Document x Word matrix where each document is represented by an array of word-frequency.</li>
+  <li>Find topics: Group together words that often show up in the same documents. Produce Word x Topic matrix.</li>
+  <li>Analyze documents: Evaluate how much each document belongs to each topic. Produce Topic x Document matrix.</li>
+</ul>
+
+<p>Notably, the ‘topics’ of topic modelling are not descriptors as you and I would expect (eg: war) but instead represented by groupings of words commonly used together (eg: guns, soldiers, MIA, General).</p>
+
+<p>The most popular method is <a href="https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation">Latent Dirichlet allocation</a>, a generative probabilistic extension of pLSA.  <a href="https://books.google.com.sg/books/about/Python_Real_World_Data_Science.html?id=skvZDQAAQBAJ&amp;redir_esc=y">Python: Real-World Data Science</a> has a full chapter on a very similar project using a k-means clustering algorithm.  There’s of course out-of-the-box libraries like <a href="https://www.nltk.org/">nltk</a>, but I didn’t want to use it without properly understanding it.</p>
+
+<p>The most obvious way, clearly, is to go to r/news and sort by hot or top, but that wouldn’t be complicated enough. It also often spams you with ten articles about <em>the</em> story of the day, and only a couple of anything else. One of my goals is to return just one article per topic.</p>
+
+<p>I felt these were all far too complicated for my simple purposes. My attempts to hack my way into a simpler, but still working, approximation grew more involved than expected. After initial failure, I tried to apply some classical theory to my work, while staying mathematically straightforward. In the end, I did manage to make the classification better - though note that ‘better’ is a relative term.</p>
+
+<h2 id="common-proper-nouns">Common Proper Nouns</h2>
+
+<p>So, having spurned classical topic modelling in favour of hacking my way through, I decided I’d manage well enough by equating the most popular topic to the most common proper nouns. It seemed sensible. Proper nouns = topics, most common = most popular. No?</p>
+
+<blockquote>
+  <p><strong>Proper Noun:</strong>
+A proper noun is the name of a particular person, place, organization, or thing. <strong>Proper nouns begin with a capital letter.</strong>[^fn]</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># regex proper nouns
+</span><span class="n">ProperNouns</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'[A-Z][a-z]+'</span><span class="p">,</span> <span class="n">all_titles</span><span class="p">)</span> 
+<span class="c1"># get 12 most common
+</span><span class="n">search_terms</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">ProperNouns</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">nlargest</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>No. This turned out worse than I hoped. My regex search pattern matches proper nouns, yes, but also the first word in a sentence and anything from capslock-happy posters. My initial list looked something like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                Counts:
+The             37
+News            19
+New             19
+Man             18
+Woman           17
+Judge           16
+Florida         15
+California      15
+Is              15
+Police          14
+</code></pre></div></div>
+
+<h3 id="stop-its-a-word">Stop, it’s a word.</h3>
+
+<p>Many of these, like ‘the’ and ‘is’, are stop words - words excluded from search queries and language processing because they’re irrelevant or too common. These should be removed when cleaning text prior to processing, to isolate only pertinent data. There’s no one conclusive list, since relevance can vary depending on use case. I amassed my own ad-hoc, with some indecision. Sigh. Anyway, I felt I’d solved the issue and could now reasonably pick the top hits as search terms:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                Counts:
+Police          18
+California      17
+Korea           15
+Florida         15
+Fire            15
+County          14
+Zimbabwe        14
+Former          14
+Mexican         13
+</code></pre></div></div>
+
+<p>Looking at these, I fully expected I’d successfully isolated the main topics, probably with some overlap. I planned on regex-ing for titles associated with each term, picking the one with most votes, then returning all unique results. Surely this would give me a good summary of the biggest topics! I predicted output like; “Police shootout in California leaves 2 dead,” “Florida Fire claims a new County,” and “Former Mexican president killed in Zimbabwe; imperials Korea peace talks.”</p>
+
+<p>Such high hopes.</p>
+
+<p>Yes, that is foreshadowing..</p>
+
+<p>Now I finally had complete, simple code:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">praw</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+
+<span class="c1"># connect to reddit with praw
+</span><span class="n">reddit</span> <span class="o">=</span> <span class="n">praw</span><span class="o">.</span><span class="n">Reddit</span><span class="p">(</span><span class="n">client_id</span><span class="o">=</span><span class="s">'my_id'</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=</span><span class="s">'my_secret'</span><span class="p">,</span> <span class="n">user_agent</span><span class="o">=</span><span class="s">'me'</span><span class="p">)</span>
+
+<span class="c1"># get new submissions from News
+</span><span class="n">submissions</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">submission</span> <span class="ow">in</span> <span class="n">reddit</span><span class="o">.</span><span class="n">subreddit</span><span class="p">(</span><span class="s">"News"</span><span class="p">)</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">limit</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="n">submissions</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">submission</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">submission</span><span class="o">.</span><span class="n">score</span><span class="p">])</span>
+<span class="n">submissions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">submissions</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s">'titles'</span><span class="p">,</span> <span class="s">'scores'</span><span class="p">])</span>
+
+<span class="c1"># get most common proper nouns
+</span><span class="n">stop_words</span> <span class="o">=</span> <span class="s">'In|The|Man|New|What|My|This|Woman|Best|Why|How|You|Is|Part|To|After|First|No|Boy'</span>
+<span class="n">all_titles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">stop_words</span><span class="p">,</span> <span class="s">""</span><span class="p">,</span> <span class="s">" "</span><span class="o">.</span> <span class="n">join</span><span class="p">(</span><span class="n">submissions</span><span class="o">.</span><span class="n">titles</span><span class="p">))</span> 
+<span class="n">ProperNouns</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'[A-Z][a-z]+'</span><span class="p">,</span> <span class="n">all_titles</span><span class="p">)</span> 
+<span class="n">search_terms</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">ProperNouns</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">nlargest</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># return all submissions referencing one of the search terms with more than 200 upvotes
+</span><span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">search_terms</span><span class="p">:</span>
+	<span class="k">print</span> <span class="s">"</span><span class="se">\n\n</span><span class="s"> Titles about "</span> <span class="o">+</span> <span class="n">term</span> <span class="o">+</span> <span class="s">":"</span>
+	<span class="k">print</span> <span class="n">submissions</span><span class="p">[(</span><span class="n">submissions</span><span class="o">.</span><span class="n">titles</span><span class="o">.</span><span class="nb">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s">"(?i)"</span><span class="o">+</span><span class="n">term</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">submissions</span><span class="p">[</span><span class="s">'scores'</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">100</span><span class="p">)]</span>
+</code></pre></div></div>
+
+<p>It outputted as it should. Everything was wonderful.</p>
+
+<p><img src="/assets/image-20180802044440376.png" alt="image-20180802044440376" /></p>
+
+<p>Yes, the code worked perfectly. But you remember that earlier foreshadowing? It comes in here. Conceptually, my plan failed.</p>
+
+<h3 id="such-issues-much-wow">Such issues much wow</h3>
+
+<p>Natural language processing is decently complicated. It may have been a touch presumptuous of me to think I’d solved it. Especially since I intentionally skipped over the many functionality-specific topic modelling tutorials and examples available to me.</p>
+
+<p>First, and retrospectively obvious, ‘common’ does not immediately translate to ‘popular’. None of the submissions about Zimbabwe even made the &gt;100 upvotes cut, so clearly nobody cared about that. This is easily resolved by weighting each proper noun by the amount of votes the submission got.</p>
+
+<p>More problematically, the most commonly used proper nouns didn’t cluster the articles like I wanted. In all the submissions, only two events showed up more than once - a shooting and the California Carr fire. Out of ~30 results, that’s a terrible hit rate.</p>
+
+<p>It didn’t work - <em>except it did</em>. The articles were clustered by topic, but those topics were a lot broader than desired. Florida articles were grouped together, California articles, etc. I want to be a lot more specific; I want to group <em>stories</em>, not topics.</p>
+
+<h3 id="pick-pocketing-from-topic-modelling">Pick-pocketing from Topic Modelling</h3>
+
+<p>See, topic modelling generally assumes that the entire body of text inputs are represented by a few topics.  It also assumes that each document covers multiple topics, to varying degrees. This results in a very interlinked web of topics and documents, as seen below. While it’s possible to increase the number of topics the model looks for, this generally just ends up giving you nonsense.</p>
+
+<p><img src="https://www.jobspikr.com/wp-content/uploads/2017/08/Topic-modelling-relationship-1024x483.png" alt="Image result for topic modelling" /></p>
+
+<p>This looks like it’ll run into the same issues as my common proper nouns method; the topic groups it finds are going to be way to general. In my context, each article represents a single event, and the majority of events will only be represented once. Topic modelling, for all the flair, is probably not the most effective method for doing this.</p>
+
+<p>In the meantime, I still like my personalized news feed. It’s adorable, in a lopsided half-bred mutt kinda way.  And I can improve on it - possibly still learn a little from the classic topic model. To recap, each generally works by:</p>
+
+<ol>
+  <li>Cleaning: remove text to retain only relevant words</li>
+  <li>Analysis: group words that often appear together as ‘topics’</li>
+  <li>Sorting: assign texts to related topics</li>
+</ol>
+
+<p>My ‘proper nouns’ solution is honestly more cleaning than analysis. I’m considering only proper nouns to be relevant text data. Then I just take the most common single-items from this cleaned data, instead of the most common groups. Of course these topics have low definition. While most topic data algorithms are still too general for me, searching for common groups of words would make the search a lot more specific. The search ‘California Fire’ would have given me a lot closer to what I wanted than the separate searches for ‘California’ and ‘Fire’ did.</p>
+
+<h2 id="multi-word-groups">Multi-Word Groups:</h2>
+
+<p>I started by explicitly cleaning the data when I fetched it, returning the set of all relevant words in each title. I switched to r/worldnews for a bigger dataset and adjusted the sort in my call to the reddit API to ‘hot’ instead of ‘new’, which should also help a bit with the common != popular issue:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">submissions</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">submission</span> <span class="ow">in</span> <span class="n">reddit</span><span class="o">.</span><span class="n">subreddit</span><span class="p">(</span><span class="s">"worldnews"</span><span class="p">)</span><span class="o">.</span><span class="n">hot</span><span class="p">(</span><span class="n">limit</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+	<span class="n">titles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+	<span class="n">cleaned_title</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">" | "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stop_words</span><span class="p">),</span> <span class="s">" "</span><span class="p">,</span> <span class="n">submission</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+	<span class="n">submissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r' [A-Z][a-z]+ '</span><span class="p">,</span> <span class="n">cleaned_title</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<p>Then came the issue of finding frequent word groups. One way to do this would be to find phrases, eg: ‘California carr fire’ or ‘give up guns’. However, stories about the same event rarely use identical phrasing - there’s a ‘fire in California’ as well as a ‘California fire’. It seemed better to compare the combination, not permutation, of words in each title.</p>
+
+<p>By now I was getting a little impatient and just brute-forced to find instances where multiple non-stopwords were shared between titles. It’s not particularly efficient, but it gets the job done:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">submissions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'title'</span> <span class="p">:</span> <span class="n">titles</span><span class="p">,</span> <span class="s">'cleaned'</span> <span class="p">:</span> <span class="n">word_groups</span><span class="p">})</span>
+
+<span class="n">topics</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">submissions</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+	<span class="k">for</span> <span class="n">sub2</span> <span class="ow">in</span> <span class="n">submissions</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+		<span class="n">shared_words</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">cleaned</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">sub2</span><span class="o">.</span><span class="n">cleaned</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shared_words</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> 
+			<span class="n">topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shared_words</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Printing out the sets showed that I was clearly getting a lot more sensible word groupings:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; [u'Arabia', u'Saudi', u'Canadian']
+&gt; [u'Korea', u'North', u'Trump']
+&gt; [u'Korea', u'North', u'Trump']
+&gt; [u'China', u'Korea', u'North']
+&gt; [u'Osama', u'Hamza', u'Laden']
+&gt; [u'The', u'Druze', u'Israel']
+&gt; [u'Aviv', u'Jewish', u'Israel', u'Tel', u'Druze']
+&gt; [u'Jewish', u'Israel', u'Druze']
+&gt; [u'Aviv', u'Tel', u'Druze']
+&gt; [u'The', u'Israel', u'Druze']
+&gt; [u'Ai', u'Beijing', u'Weiwei', u'Chinese']
+&gt; [u'Ai', u'Authorities', u'Studio', u'Chinese']
+&gt; [u'Arabia', u'Saudi', u'Canadian']
+&gt; ...
+</code></pre></div></div>
+
+<h3 id="duplicates-and-dirty-data">Duplicates and dirty data</h3>
+
+<p>However, some problems clearly remained.</p>
+
+<ul>
+  <li>My brute-force code gave me a bunch of duplicate entries. I added a clause in the for loop to not append if the titles were the exact same, and ditched any others by calling set() on the final list.</li>
+  <li>There were many groups that were very similar, but not exactly the same.</li>
+  <li>Cleaning the data for just proper nouns biased my results towards anything with somebody’s name or a countries. It would probably be better to remove a more complete list of stopwords, then use all remaining words.</li>
+  <li>The cleaning didn’t seem to be properly successful; there were still a bunch of ‘The’ and ‘In’ that had successfully snuck there way in. This utterly perplexed me for a long while, until I came to the frustrating discovery that regex re.sub() only takes the first of overlapping matches. This is a problem since I was matching only if the stopwords had spaces on either side. This was somewhat necessary to prevent eg: ‘Israel’ from being turned into ‘rael’. Simplest, if annoying, solution is just to call the same re.sub() command multiple times.</li>
+</ul>
+
+<p>Solving the cleaning issues was decently straightforward. I finally broke out pythons natural learning toolkit library to borrow their list of english stopwords, which required way more steps than expected. Unfortunately a lot of nltk’s datasets don’t come automatically with the normal pip install and import. You need to download these separately:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>you@console$ python
+&gt;&gt;&gt; import nltk
+&gt;&gt;&gt; nltk.download()
+</code></pre></div></div>
+
+<p>This will open a new window, where you click download all. You also need to pick what language your dealing with in-script. Finally, better cleaning occured:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+<span class="n">stop_words</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s">'english'</span><span class="p">))</span>
+
+<span class="n">submissions</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">submission</span> <span class="ow">in</span> <span class="n">reddit</span><span class="o">.</span><span class="n">subreddit</span><span class="p">(</span><span class="s">"worldnews"</span><span class="p">)</span><span class="o">.</span><span class="n">hot</span><span class="p">(</span><span class="n">limit</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+	<span class="n">titles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+	<span class="n">cleaned_title</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">" | "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stop_words</span><span class="p">),</span> <span class="s">" "</span><span class="p">,</span> <span class="n">submission</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+	<span class="n">cleaned_title</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">" | "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stop_words</span><span class="p">),</span> <span class="s">" "</span><span class="p">,</span> <span class="n">cleaned_title</span><span class="p">)</span>
+	<span class="n">submissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r' [a-z]+ '</span><span class="p">,</span> <span class="n">cleaned_title</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<p>Now this? This is getting somewhere.</p>
+
+<p><img src="/assets/image-20180806164725064.png" alt="image-20180806164725064" /></p>
+
+<p>All of these groups feature (mostly) different articles about the same event. There’s still some groups that refer to the same topic - three groups refer to N. Korean missile tests - but that’s gotten better. I’m expecting them to disappear once I sort out the less popular ones. Of course, with my luck, it’s more likely that we’ll end up with only duplicates in the most popular ones.</p>
+
+<p>Now it’s time to shrink down the results. My resolution to return only one article per event was sorely tested by what has to be my favourite pairing ever:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; 	  Stories under topic: (['japan', 'australia', 'whaling'])
+&gt; Australia Thursday vowed to vehemently oppose a new push by Japan to undermine a global moratorium on commercial whaling, and urged like-minded nations to stand firm against Tokyo.
+&gt; Japan and Australia agreed Friday to make efforts to prevent a dispute over whaling from hurting bilateral relations, a government official said.
+</code></pre></div></div>
+
+<p>Suck backtrack, much wow.</p>
+
+<h3 id="narrowing-down-the-groups">Narrowing down the groups</h3>
+
+<p>Anyway, on to finding the popular events. Equating this to commonly posted about didn’t work out previously. I checked it out anyway, and unsurprisingly found that it was mostly events with duplicate or near-duplicate articles. Ah well.</p>
+
+<p><img src="/assets/image-20180806171635875.png" alt="image-20180806171635875" /></p>
+
+<p>Sorting by scores it is. At this point, I realized I’d stopped fetching the scores from reddit at some point. Whoops. Ah well, easy enough fix.</p>
+
+<p>I started with 153 different topics. There’s some variation to be expected, since the program fetches the most up-to-date ‘hot’ submissions from r/worldnews each time, but that should be minor. There’s two obvious places where I could institute a score-check: when I’m creating the topic groups, and afterwards (most likely as part of the printing for loop). Doing it while creating the topic groups would be more efficient, since I wouldn’t need to loop through the less popular ones later on. However, it would also give me less fine-grain control. I’m extracting topics from only two articles at a time, while there’s possibly more that match. Doing it after would let me evaluate a topic given all relevant articles. I did it while creating the topic groups .</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">submissions</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+	<span class="k">for</span> <span class="n">sub2</span> <span class="ow">in</span> <span class="n">submissions</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+		<span class="k">if</span> <span class="n">sub</span><span class="o">.</span><span class="n">title</span> <span class="o">!=</span> <span class="n">sub2</span><span class="o">.</span><span class="n">title</span> <span class="ow">and</span> <span class="n">sub</span><span class="o">.</span><span class="n">score</span> <span class="o">+</span> <span class="n">sub2</span><span class="o">.</span><span class="n">score</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+			<span class="n">shared_words</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">cleaned</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">sub2</span><span class="o">.</span><span class="n">cleaned</span><span class="p">)</span>
+			<span class="n">topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">shared_words</span><span class="p">))</span><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shared_words</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="bp">None</span>
+</code></pre></div></div>
+
+<p>Including topics only if the combined score of both articles was over 500 shrunk the number of topics down to 39. This was with significant overlap - Robert Meuller came up 8 times. It’s probably time to try and tidy that up. This leaves me a bit puzzled, since it’s basically the original problem all over again; I’ve got a couple of lists of words, and I want to isolate similar ones.</p>
+
+<h3 id="topic-modelling-the-goddamn-topics">Topic modelling the goddamn topics.</h3>
+
+<p>Seriously, I’m back to square one - except this time, with a bit of experience. I see two immediate possibilities:</p>
+
+<ul>
+  <li>Find single words that show up in more than one topic</li>
+  <li>Find groups of words that show up in more than one topic</li>
+</ul>
+
+<p>For the original issue, the latter worked far better. Yet I suspect that the former might work best here - we’ve already shaved it down so far we shouldn’t have any duplicates. Requiring more words would be both more lax and more complicated - the Meuller groups all have several things in common with something else, but nothing in common with everything else. Actually, this is also a problem with the single-word method, albeit less of one.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; ['robert', 'trump', 'donald', 'russia']
+&gt; [u'counsel', u'robert', u'russia']
+&gt; [u'donald', u'robert', u'trump', u'special']
+&gt; [u'mueller', u'white', u'trump']
+&gt; [u'robert', u'russia', u'special']
+&gt; [u'counsel', u'robert', u'special']
+</code></pre></div></div>
+
+<p>I started with the single-word method, by finding all duplicate words in the set of topics and grouping accordingly. This yielded the same number of groups as I’d had topics. No, that wasn’t an error, there were just a lot of duplicate code. I had better luck finding all groups that matched any part of one group:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">grouped_topics</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
+	<span class="n">similar_topics</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">topic2</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">topic</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">topic2</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">similar_topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topic2</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">similar_topics</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouped_topics</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">similar_topics</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+		<span class="n">grouped_topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">similar_topics</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>This gave me 15 groups. There were still duplicate groups; 4 for Trump/Mueller/Russia, 3 for Palestinian refugees, 3 for North Korean missiles. A couple of groups shouldn’t have existed, and I realized I needed to add numbers to my stopwords. I also decided to exclude ‘Trump’, on the basis that 1) he turns up way too often, 2) it shouldn’t effect finding topics for the worse, since other words (president, Donald, White House) are almost always used in conjunction, 3) he generally features in multiple events, so grouping based on him is a problem, and 4) I’m sick of him anyway.</p>
+
+<p>I hadn’t actually expected this to solve my grouping crisis, but it mostly did. My biggest problem was that there were three groups focused on N. Korean missiles. I finally said to hell with this and just merged any groups that had any items in common. I’m absolutely certain there’s a more efficient way to do this:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">grouped_grouped_topics</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">grouped_topics</span><span class="p">:</span>
+	<span class="k">for</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">grouped_topics</span><span class="p">:</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">group2</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">group</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">group2</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouped_grouped_topics</span><span class="p">:</span>
+		<span class="n">grouped_grouped_topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>This finally delivered my dream; it compressed 23 topics down into 7 sensible groups with no overlap. I was interested to find in the meantime that a Canadian ambassador had been expelled from Arabia. But it seems like I’m almost done.</p>
+
+<h3 id="could-this-be-success">Could this be… Success?</h3>
+
+<p>With my topic grouping and &gt;500 bound for the combined score, I ended up with 16 summary articles. All were independent, and decently important. They covered events from Tel Aviv to Bangladesh, including the classical White House scandals and technology updates as well as feel-good whale stories.</p>
+
+<p><img src="/assets/image-20180807022120917.png" alt="image-20180807021907749" /></p>
+
+<p>This is kinda awesome - it took a bunch of pivoting and head-scratching, but I’ve finally accomplished my goal! The top stories of the day, each covered by unique articles in a quick and accessible summary of relevant news. Can I confirm that these adequately represent the top of the news cycle?</p>
+
+<p>Let’s compare my results to the top-voted articles:</p>
+
+<ul>
+  <li>The top-sorted articles were pretty repetitive, at around 2 titles/event. Mine was solidly 1 title/event, with excellent worldwide coverage.</li>
+  <li>Of the 257 unique non-trivial words in the top 100 article titles, 164 were included in my top 16. That’s a 65% hit rate, suggesting pretty good coverage.</li>
+  <li>My articles were consistently longer than the top-sort ones. This makes much sense, since groups based on sharing multiple words statistically favour titles with more words. It’s also gives more info in this title-only return format.</li>
+  <li>Mine missed several pertinent items, like murdered journalists and heatwaves. This was likely because any event had to feature in multiple stories, with long titles, to create a topic.</li>
+</ul>
+
+<p>Overall, pretty decent.</p>
+
+<h3 id="so-what">So What?</h3>
+
+<p>It’s a simple method to solve a tricky problem. As overburdened as the code is, this implementation translates the conceptual simplicity of topic modelling into practice. This is much more understandable than unsupervised machine learning. Shared word groups are found and grouped appropriately; this yields the desired level of topic detail. That point - the level of detail - does highlight that it’s fairly application-specific, but still a success.</p>
+
+<p>It works. It actually works; I accurately generated groups of articles that tightly represented specific events, with a pretty straightforward conceptual framework.</p>
+
+<p>Conceptually, it could improve. Topic modelling might not be the right fit, but this isn’t quite either. I could rephrase my initial goal; I want a single report for each of the top events. A more sensible take would be to get the top 30 articles, then find and remove duplicate events. This gets around the issue of needing multiple wordy titles for a topic, but could use generally the same methods.</p>
+
+<p>Coding-wise, this sucks. Loops are oozing out at a glance and the list comprehensions border on incomprehensible. There’s definitely better ways to do it - but there are times to properly research and craft simple, efficient programs that will run as fast as possible, then there are times to hack together something you can code as fast as possible. This is the latter.</p>
+
+<p>I might always come back and improve the code sometime; at which point I will silently alter all my brute-force methods and remove every reference to them (including this one). Such revisionist history will allow future readers to believe in my genius in full ignorance of any previous mistakes.</p>
+
+<h3 id="code">Code</h3>
+
+<p>The full code, by the end, had ballooned. Some of this was in cleaning, sure, but most went to the overcomplicated topic-grouping:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">praw</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+
+<span class="c1"># connect to reddit
+</span><span class="n">reddit</span> <span class="o">=</span> <span class="n">praw</span><span class="o">.</span><span class="n">Reddit</span><span class="p">(</span><span class="n">client_id</span><span class="o">=</span><span class="s">'D6v36GJPD07usA'</span><span class="p">,</span>
+                     <span class="n">client_secret</span><span class="o">=</span><span class="s">'y3opRvKVKhqj3X9gQwAaQdS4EXY'</span><span class="p">,</span>
+                     <span class="n">user_agent</span><span class="o">=</span><span class="s">'me'</span><span class="p">)</span>
+
+<span class="c1"># get cleaned submissions from News
+</span><span class="n">stop_words</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s">'english'</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s">'un'</span><span class="p">,</span> <span class="s">'two'</span><span class="p">,</span> <span class="s">'one'</span><span class="p">,</span> <span class="s">'trump'</span><span class="p">])</span>
+<span class="n">word_groups</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">submission</span> <span class="ow">in</span> <span class="n">reddit</span><span class="o">.</span><span class="n">subreddit</span><span class="p">(</span><span class="s">"worldnews"</span><span class="p">)</span><span class="o">.</span><span class="n">hot</span><span class="p">(</span><span class="n">limit</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+	<span class="n">titles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+	<span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">score</span><span class="p">)</span>
+	<span class="n">cleaned_title</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">" | "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stop_words</span><span class="p">),</span> <span class="s">" "</span><span class="p">,</span> <span class="n">submission</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+	<span class="n">cleaned_title</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">" | "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stop_words</span><span class="p">),</span> <span class="s">" "</span><span class="p">,</span> <span class="n">cleaned_title</span><span class="p">)</span>
+	<span class="n">word_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'(?&lt;= )[a-z]+(?= )'</span><span class="p">,</span> <span class="n">cleaned_title</span><span class="p">)))</span>
+
+<span class="k">print</span> <span class="s">"Found </span><span class="si">%</span><span class="s">d submissions"</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">titles</span><span class="p">)</span>
+<span class="n">submissions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'title'</span> <span class="p">:</span> <span class="n">titles</span><span class="p">,</span> <span class="s">'cleaned'</span> <span class="p">:</span> <span class="n">word_groups</span><span class="p">,</span> <span class="s">'score'</span> <span class="p">:</span> <span class="n">scores</span><span class="p">})</span>
+
+<span class="c1"># get topics
+</span><span class="n">topics</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">submissions</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+	<span class="k">for</span> <span class="n">sub2</span> <span class="ow">in</span> <span class="n">submissions</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+		<span class="k">if</span> <span class="n">sub</span><span class="o">.</span><span class="n">title</span> <span class="o">!=</span> <span class="n">sub2</span><span class="o">.</span><span class="n">title</span> <span class="ow">and</span> <span class="n">sub</span><span class="o">.</span><span class="n">score</span> <span class="o">+</span> <span class="n">sub2</span><span class="o">.</span><span class="n">score</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+			<span class="n">shared_words</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">cleaned</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">sub2</span><span class="o">.</span><span class="n">cleaned</span><span class="p">)</span>
+			<span class="n">topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">shared_words</span><span class="p">))</span><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shared_words</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="bp">None</span>
+
+<span class="n">topics</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">topics</span><span class="p">)</span>
+
+<span class="c1"># group similar topics 
+</span><span class="n">grouped_topics</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
+	<span class="n">similar_topics</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">topic2</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">topic</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">topic2</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">similar_topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topic2</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">similar_topics</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouped_topics</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">similar_topics</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+		<span class="n">grouped_topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">similar_topics</span><span class="p">))</span>
+
+<span class="n">grouped_grouped_topics</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">grouped_topics</span><span class="p">:</span>
+	<span class="k">for</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">grouped_topics</span><span class="p">:</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">group2</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">group</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">group2</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouped_grouped_topics</span><span class="p">:</span>
+		<span class="n">grouped_grouped_topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+
+<span class="n">used_topics</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">best_articles</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># find most popular articles for all topics
+</span><span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">grouped_topics</span><span class="p">:</span>
+	<span class="n">used_topics</span> <span class="o">=</span> <span class="n">used_topics</span> <span class="o">+</span> <span class="p">[</span><span class="n">topic</span> <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">group</span><span class="p">]</span>
+	<span class="n">relevant_subs</span> <span class="o">=</span> <span class="n">submissions</span><span class="p">[[</span><span class="nb">any</span><span class="p">([</span><span class="n">topic</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">sub</span><span class="o">.</span><span class="n">cleaned</span><span class="p">)</span> <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">group</span><span class="p">])</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">submissions</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()]]</span>
+	<span class="n">best_articles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relevant_subs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">relevant_subs</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()])</span>
+
+<span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
+	<span class="k">if</span> <span class="n">topic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">used_topics</span><span class="p">:</span>
+		<span class="n">relevant_subs</span> <span class="o">=</span> <span class="n">submissions</span><span class="p">[</span><span class="n">topic</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">submissions</span><span class="o">.</span><span class="n">cleaned</span><span class="p">)]</span>
+		<span class="n">best_articles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relevant_subs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">relevant_subs</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()])</span>
+
+<span class="c1"># print articles
+</span><span class="k">for</span> <span class="n">article</span> <span class="ow">in</span> <span class="n">best_articles</span><span class="p">:</span>
+	<span class="k">print</span> <span class="s">"&gt;  "</span> <span class="o">+</span> <span class="n">article</span><span class="o">.</span><span class="n">title</span>
+</code></pre></div></div>
+:ET
