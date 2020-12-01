@@ -1533,7 +1533,7 @@
         <hr>
         <p><span>Our deployment strategy separates configuration and secure data from the codebase. You&#39;ll be familiar with this from the previous </span><em><span>Preparing your Repository</span></em><span> booklet, which had you putting all this data into a separate </span><code>env/</code><span> folder. </span></p>
         <p><span>This separation is maintained in Kubernetes, using the ConfigMap and Secret objects described in the </span><a href='./ABriefIntroduction.html'><span>introduction</span></a><span>. The files and folders in your </span><code>env/</code><span> folder correlate to different ConfigMaps and Secrets, as shown below.</span></p>
-        <p><img src="https://scontent.fsin9-2.fna.fbcdn.net/v/t1.15752-9/124578341_654587805190812_2944757726960731335_n.jpg?_nc_cat=101&amp;ccb=2&amp;_nc_sid=ae9488&amp;_nc_ohc=_mqzHwRGeAQAX9IazLA&amp;_nc_ht=scontent.fsin9-2.fna&amp;oh=2118596ece2486803ac4c165254052d9&amp;oe=5FCECF79" referrerpolicy="no-referrer" alt="img"></p>
+        <p><img src="{{github.hebehh.io}}/assets/darkpages/AccessingKubernetesCluster/imgs/secretrelation.jpg"></p>
         <p><span>This section shows you how to view and update ConfigMaps and Secrets. It doesn&#39;t go into how the process of associating these objects with the container, as this has already been done. If you need to add a new file to a specific location, you&#39;ll need to contact the Kubernetes admin.</span></p>
         <p>&nbsp;</p>
         <h3><a name="where-things-are" class="md-header-anchor"></a><span>Where things are</span></h3>
@@ -1541,7 +1541,7 @@
         <ol start=''>
             <li><code>deployment-config</code><span>: A ConfigMap with generic configuration data. Loaded into the container as environment variables.</span></li>
             <li><code>deployment-urls</code><span>: A ConfigMap with all the URLs used by the repository. Loaded into the container as environment variables.</span></li>
-            <li><code>deployment-secrets</code><span>: A Secret with all private data used by the repository. Loaded into the container as either environment variables, or the </span><code>/secrets/</code><span> folder.</span></li>
+            <li>At least one of <code>deployment-secrets</code> or <code>deployment-secret-folder</code><span>: A Secret with all private data used by the repository. Loaded into the container as either environment variables, or the </span><code>/secrets/</code><span> folder.</span></li>
         </ol>
         <p><span>These will be familiar to you as the </span><code>config.env</code><span>, </span><code>urls.env</code><span> and </span><code>secrets.env</code><span> files you made while preparing your repository. </span></p>
         <p><span>If your repository includes any config files that need to be mounted at specific locations within the container, these are contained in the </span><code>deployment-secret-files</code><span> Secret (encrypted) or the </span><code>deployment-config-files</code><span> ConfigMap (not encrypted).</span></p>
