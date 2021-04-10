@@ -2,9 +2,52 @@
 title: "Home"
 layout: blank
 ---
+
+<head>
+    <script type="text/javascript">
+
+    // TODO : don't delete posts with a remaining tag
+    function togglePosts(category) {
+        console.log("happening");
+        console.log(category)
+        let articlecards = document.getElementsByClassName("articlecard");
+        
+        for ( post of articlecards) {
+            console.log()
+            if (category == 'All' || post.classList.contains(category)) {
+                post.style.display = 'block' ;
+            } else {
+                post.style.display = 'none' ;
+            }
+        }
+    }
+    </script>
+</head>
+
+
 <main>
+    <div class="selectbar">
+        <span>
+            <strong>Category: </strong>
+            <select id="country"  onchange="togglePosts(this.value)">
+                <option value="All">All</option>
+                {%- for category in site.categories -%}
+                <option value="{{category[0]}}">{{category[0]}}</option>
+                {%- endfor -%}
+            </select>
+        </span>
+        <span>
+            <strong>Tags: </strong>
+            <select id="country"  onchange="togglePosts(this.value)">
+                <option value="All">All</option>
+                {%- for tag in site.tags -%}
+                <option value="{{tag[0]}}">{{tag[0]}}</option>
+                {%- endfor -%}
+            </select>
+        </span>
+    </div>
     {% for page in paginator.posts %}
-          <div class="articlecard" onclick="location.href='{{ page.url | prepend: site.baseurl }}';">
+          <div class="articlecard {{ page.categories }} {{ page.tags | join: ' '  }}" onclick="location.href='{{ page.url | prepend: site.baseurl }}';">
             <header>
                 <h2>{{ page.title }}</h2>
                 <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %-d, %Y" }}</time>

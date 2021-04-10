@@ -4,7 +4,7 @@ body
   font-size: 12px
   line-height: 1.35
   margin: 0
-  background-color: #fffdd0
+  background-color: red
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
 
@@ -20,23 +20,36 @@ a, b, strong, th
 
 h1, h2, h3, h4, h5, h6
   font-weight: 430
-  color: #9b00ad
+  color: #073cbf
   margin: 0.1em 0
 
 main
   flex-grow: 1
-  background-color: #dddae5
+  background-color: #e3e7ec
 
 
 article a
-  color: #3c671e
+  color: #0a8ed0
 
-header a, footer a
-  color: #e1e1e1
+body > header a
+  color: #ff6565
   font-weight: 400
+  mix-blend-mode: normal
+  mix-blend-mode: exclusion
+  mix-blend-mode: color-dodge
+
+body > header > h1
+  font-size: 3em
+
+header a
+  color: red
+  font-weight: 400
+  mix-blend-mode: normal
+
+
 
 article header a, footer a
-  color: #63407b
+  color: #073cbf
   font-weight: 400
 
 hr
@@ -44,7 +57,7 @@ hr
   margin: 1em 0
 
 header span, header time
-  color: #d44e99
+  color: #9b32b1
   font-size: 0.7em
 
 blockquote
@@ -64,16 +77,22 @@ figure
   margin: 1em 0
 
 button
-  padding: 5px
+  padding: 5px 12px
   font-size: 0.9em
-  background-color: #6fbf2b
+  background-color: #d44e99
   border-radius: 10px
+  border: 0px
+  box-shadow: 0.4em 0.3em 0.3em #cccccc
   margin: 5px
   color: #f5f5f5
 
+select
+  padding: 0.1em 0.5em
+  border-radius: 0.5em
+
 button:hover
   color: white
-  background-color: #8fdf4b
+  background-color: #c1066f
 
 .layer
   display: none
