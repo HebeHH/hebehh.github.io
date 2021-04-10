@@ -4,7 +4,7 @@ date: 2018-08-07 01:14:07
 image: '/assets/'
 description:
 tags: python NLP topic-modelling
-categories:
+categories: monoliths
 twitter_text:
 ---
 During my last bout with insomnia I decided I wanted to get a bit more familiar with python's [regex](https://developers.google.com/edu/python/regular-expressions), [pandas](https://pandas.pydata.org/) and [PRAW Reddit API](https://praw.readthedocs.io/en/latest/) all at the same time. This turned into an exploratory saga into [topic modelling](https://www.kdnuggets.com/2016/07/text-mining-101-topic-modeling.html), a fascinating subset of natural language processing that uncovers common topics within text data. As a random mini-task, I'd decided to try mining new r/news posts to find current popular topics, then return matching articles. 

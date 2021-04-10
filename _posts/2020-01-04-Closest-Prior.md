@@ -1,6 +1,6 @@
 ---
 title: "Getting the Closest Prior from a list"
-date: 2020-01-04 09:40:07
+date: 2020-04-01 09:40:07
 image: '/assets/'
 excerpt: "Sometimes I'll spend half an hour coming up with a complex, elegant solution to a problem, then instantly be hit by a simple fix that makes all that work worthless."
 tags: lists javascript
@@ -41,18 +41,18 @@ So in my mind there's two parts to this. You want all numbers greater than `x` t
   <div style="height:1.5em;width:0.8em;float:left;text-align:center"><strong>x</strong></div>
   <div style="height:1.5em;width:40%;float:left;text-align:right">biggest &rarr;</div>
 </div> 
-<div style="height:1.5em;width:100%"> 
-  <div style="background:linear-gradient(to right, #24C6DC, #4788bc); height:1.5em;width:40%;margin-left:10%;float:left"></div>
-  <div style="height:1.5em;width:0.8em;float:left;text-align:center
+<div style="height:1.2em;width:100%"> 
+  <div style="background:linear-gradient(to right, #24C6DC, #4788bc); height:1.2em;width:40%;margin-left:10%;float:left"></div>
+  <div style="height:1.2em;width:0.8em;float:left;text-align:center
 "><sup>^</sup></div>
-  <div style="background:linear-gradient(to right, #4788bc, #514A9D); height:1.5em;width:40%;float:left"></div>
+  <div style="background:linear-gradient(to right, #4788bc, #514A9D); height:1.2em;width:40%;float:left"></div>
 </div> 
 
 You want to sort the list something like this:
 
-<div style="height:1.5em;width:100%"> 
-  <div style="background:linear-gradient(to right, #4788bc, #24C6DC); height:1.5em;width:40%;margin-left:10%;float:left"></div><div style="height:1.5em;width:0.8em;float:left;text-align:center"></div>
-  <div style="background:linear-gradient(to right, #4788bc, #514A9D); height:1.5em;width:40%;float:left"></div>
+<div style="height:1.2em;width:100%"> 
+  <div style="background:linear-gradient(to right, #4788bc, #24C6DC); height:1.2em;width:40%;margin-left:10%;float:left"></div><div style="height:1.2em;width:0.8em;float:left;text-align:center"></div>
+  <div style="background:linear-gradient(to right, #4788bc, #514A9D); height:1.2em;width:40%;float:left"></div>
 </div> 
 
 I gave him this sorting function, with an appropriate try/catch block to handle divide by zero errors. Using try/catch means that the additional comparisons (ie whether a or b is equal to x) are only performed when necessary, instead of every time.
@@ -74,10 +74,10 @@ This sort function is basically normal sort, on a transformed array. Each array 
   <div style="height:1.5em;width:0.8em;float:left;text-align:center"><strong>0</strong></div>
   <div style="height:1.5em;width:40%;float:left;text-align:right">positive &rarr;</div>
 </div> 
-<div style="height:1.5em;width:100%"> 
-  <div style="background:linear-gradient(to right, #24C6DC, #4788bc); height:1.5em;width:40%;margin-left:10%;float:left"></div>
-  <div style="height:1.5em;width:0.8em;float:left;text-align:center"> <sup>^</sup></div>
-  <div style="background:linear-gradient(to right, #4788bc, #514A9D); height:1.5em;width:40%;float:left"></div>
+<div style="height:1.2em;width:100%"> 
+  <div style="background:linear-gradient(to right, #24C6DC, #4788bc); height:1.2em;width:40%;margin-left:10%;float:left"></div>
+  <div style="height:1.2em;width:0.8em;float:left;text-align:center"> <sup>^</sup></div>
+  <div style="background:linear-gradient(to right, #4788bc, #514A9D); height:1.2em;width:40%;float:left"></div>
 </div> 
 
 and then dividing by that inverts the magnitude of each number, to leave the closest prior as the smallest item in the transformed array.
@@ -87,11 +87,11 @@ and then dividing by that inverts the magnitude of each number, to leave the clo
   <div style="height:1.5em;width:0.8em;float:left;text-align:center"><strong>0</strong></div>
   <div style="height:1.5em;width:40%;float:left;text-align:right">positive &rarr;</div>
 </div> 
-<div style="height:1.5em;width:100%"> 
-  <div style="background:linear-gradient(to right, #4788bc, #24C6DC); height:1.5em;width:40%;margin-left:10%;float:left"></div>
-  <div style="height:1.5em;width:0.8em;float:left;text-align:center
+<div style="height:1.2em;width:100%"> 
+  <div style="background:linear-gradient(to right, #4788bc, #24C6DC); height:1.2em;width:40%;margin-left:10%;float:left"></div>
+  <div style="height:1.2em;width:0.8em;float:left;text-align:center
 "><sup>^</sup></div>
-  <div style="background:linear-gradient(to right, #514A9D, #4788bc); height:1.5em;width:40%;float:left"></div>
+  <div style="background:linear-gradient(to right, #514A9D, #4788bc); height:1.2em;width:40%;float:left"></div>
 </div> 
 
 <br>
@@ -118,6 +118,7 @@ and then dividing by that inverts the magnitude of each number, to leave the clo
 
 **Me:** ...why not just `filter` out all elements greater than `x`, then sort descending?
 
+<br>
 
 
 And that's one story of how easy it is to complicate something far beyond necessity.
