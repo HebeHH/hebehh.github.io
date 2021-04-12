@@ -1533,7 +1533,7 @@
         <hr>
         <p><span>Our deployment strategy separates configuration and secure data from the codebase. You&#39;ll be familiar with this from the previous </span><em><span>Preparing your Repository</span></em><span> booklet, which had you putting all this data into a separate </span><code>env/</code><span> folder. </span></p>
         <p><span>This separation is maintained in Kubernetes, using the ConfigMap and Secret objects described in the </span><a href='./ABriefIntroduction.html'><span>introduction</span></a><span>. The files and folders in your </span><code>env/</code><span> folder correlate to different ConfigMaps and Secrets, as shown below.</span></p>
-        <p><img src="{{github.hebehh.io}}/assets/darkpages/AccessingKubernetesCluster/imgs/secretrelation.jpg"></p>
+        <p><img src="imgs/k8simgs/ConfigMapping.png"></p>
         <p><span>This section shows you how to view and update ConfigMaps and Secrets. It doesn&#39;t go into how the process of associating these objects with the container, as this has already been done. If you need to add a new file to a specific location, you&#39;ll need to contact the Kubernetes admin.</span></p>
         <p>&nbsp;</p>
         <h3><a name="where-things-are" class="md-header-anchor"></a><span>Where things are</span></h3>
