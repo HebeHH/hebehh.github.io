@@ -17,9 +17,8 @@ navigation:
   - archive.html
   - about.md
 
-# comments:
-#   disqus: "disqus-contrast"
-  # isso: "comments.mysite.org"
+comments:
+  disqus: "disqus-contrast"
 
 links: # see http://fontawesome.io/icons/#brand for all possible icons
   - github: "https://github.com/HebeHH"
