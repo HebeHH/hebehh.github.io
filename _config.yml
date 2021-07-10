@@ -2,7 +2,7 @@ title: "git commit"
 author: "Hebe Hilhorst"
 description: "My life as someone who is moderately good at googling things"
 more: "read more »"
-url: "http://localhost:4000"
+url: "https://hebehh.github.io/"
 # baseurl: "http://localhost:4000"
 paginate: 100
 permalink: pretty
@@ -18,7 +18,7 @@ navigation:
   - about.md
 
 comments:
-  disqus: "disqus-contrast"
+  disqus: "gitinit"
 
 links: # see http://fontawesome.io/icons/#brand for all possible icons
   - github: "https://github.com/HebeHH"
