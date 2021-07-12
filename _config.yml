@@ -17,6 +17,9 @@ navigation:
   - archive.html
   - about.md
 
+# Google Analytics
+google_analytics: G-PDF93Z9F72
+
 comments:
   disqus: "gitinit"
 

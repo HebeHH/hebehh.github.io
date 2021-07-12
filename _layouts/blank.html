@@ -1,4 +1,8 @@
+
 <!DOCTYPE html>
+{% if site.google_analytics and jekyll.environment == 'production' %}
+{% include analytics.html %}
+{% endif %}
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="{{ site.encoding }}">
 <meta name="author" content="{% if page.author %}{{ page.author }}{% else %}{{ site.author }}{% endif %}">
