@@ -1658,9 +1658,7 @@
         <p><span>If you&#39;re looking for a specific value in a large ConfigMap, I recommend using </span><code>grep</code><span> or </span><code>findstr</code><span> to pull out just that line.</span></p>
         <p>&nbsp;</p>
         <h3><a name="viewing-secret-values" class="md-header-anchor"></a><span>Viewing Secret Values</span></h3>
-        <p><strong><span>You can&#39;t.</span></strong></p>
-        <p><span>Secrets are encrypted; that&#39;s the difference with ConfigMaps. You cannot see the value of a Secret once it&#39;s been created. This is why we have a strict policy of only using Secrets for data that </span><em><span>needs</span></em><span> to be kept secure. There&#39;s no point in sacrificing convenience unnecessarily. Everything else is better placed in a ConfigMap.</span></p>
-        <p><span>That said, you can see a list of the key names and </span><em><span>encrypted</span></em><span> values, in the same way as before:</span></p>
+        <p>Secrets are base64 encoded at rest. You can view them in the same way as you can view configmaps. However, to get the true value of the secret, you will need to base64 decode the returned value.</p>
         <div style="background-color:black;display:block;font-family: monospace;padding:3px;font-size:0.7em; color:lime">
             kubectl get secret -n <span style="color:orange">NAMESPACE</span> <span style="color:orange">SECRET_NAME</span> -o yaml
         </div>
